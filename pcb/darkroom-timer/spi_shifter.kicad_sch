@@ -1,0 +1,323 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "ac96d264-b7e0-4ab6-a2ba-ae978e09b868")
+	(paper "A4")
+	(lib_symbols)
+	(wire
+		(pts
+			(xy 144.78 110.49) (xy 148.59 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1af6879c-6b34-4c7f-9772-1b9589550e23")
+	)
+	(wire
+		(pts
+			(xy 144.78 92.71) (xy 148.59 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3725c18e-208b-48b0-98c3-348519c78cad")
+	)
+	(wire
+		(pts
+			(xy 165.1 101.6) (xy 161.29 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "91a904ac-ceb1-44bb-9ae0-c4bb9515cb03")
+	)
+	(wire
+		(pts
+			(xy 165.1 92.71) (xy 161.29 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9b7ebdd7-e639-4922-8a38-572a9593056d")
+	)
+	(wire
+		(pts
+			(xy 165.1 110.49) (xy 161.29 110.49)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5ef02be-8463-45d6-b0db-88eea1435928")
+	)
+	(wire
+		(pts
+			(xy 144.78 101.6) (xy 148.59 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ce9aca75-d656-483d-98de-efb47961c04e")
+	)
+	(hierarchical_label "SCK L"
+		(shape bidirectional)
+		(at 144.78 110.49 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "02150f78-eab9-49b9-8066-b2f3fd999108")
+	)
+	(hierarchical_label "MOSI L"
+		(shape bidirectional)
+		(at 144.78 92.71 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3f87ed6b-1957-4e8b-8acf-2bc6481469c1")
+	)
+	(hierarchical_label "MISO H"
+		(shape bidirectional)
+		(at 165.1 101.6 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "51b4bd88-d17a-4357-b263-1f43550691d7")
+	)
+	(hierarchical_label "MISO L"
+		(shape bidirectional)
+		(at 144.78 101.6 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8412b767-7c86-4704-a2b2-a82bcc95dc97")
+	)
+	(hierarchical_label "SCK H"
+		(shape bidirectional)
+		(at 165.1 110.49 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9b5a2aab-02a2-434e-9df4-37539ac98b3f")
+	)
+	(hierarchical_label "MOSI H"
+		(shape bidirectional)
+		(at 165.1 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f0bc554c-d444-4e87-bebf-849dcb13d746")
+	)
+	(sheet
+		(at 148.59 90.17)
+		(size 12.7 5.08)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "0b00f093-b014-4939-b245-0653049784b5")
+		(property "Sheetname" "Logic Shifter 1"
+			(at 148.59 89.4584 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "logic_shifter.kicad_sch"
+			(at 148.59 95.8346 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "HV" bidirectional
+			(at 161.29 92.71 0)
+			(uuid "b96a246b-9778-43c7-a4a8-3182fba31410")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "LV" bidirectional
+			(at 148.59 92.71 180)
+			(uuid "43bc38cc-9176-412d-997f-93c430e8bc4e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/2bd70688-6598-43b6-acf3-0b8d3b09b23e"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 148.59 99.06)
+		(size 12.7 5.08)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "77d60e12-0263-491d-bbd8-e0f5d01a864d")
+		(property "Sheetname" "Logic Shifter 2"
+			(at 148.59 98.3484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "logic_shifter.kicad_sch"
+			(at 148.59 104.7246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "HV" bidirectional
+			(at 161.29 101.6 0)
+			(uuid "d8076c34-542f-4d98-ae38-b6714f8d484c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "LV" bidirectional
+			(at 148.59 101.6 180)
+			(uuid "0cf7e969-ca7d-48a4-9da6-225745704bdf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/2bd70688-6598-43b6-acf3-0b8d3b09b23e"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 148.59 107.95)
+		(size 12.7 5.08)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "a9369bce-6a52-4e33-b658-fe210e79c40e")
+		(property "Sheetname" "Logic Shifter 3"
+			(at 148.59 107.2384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "logic_shifter.kicad_sch"
+			(at 148.59 113.6146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(pin "HV" bidirectional
+			(at 161.29 110.49 0)
+			(uuid "3e504bde-bc12-4e68-8002-025416e3cd45")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "LV" bidirectional
+			(at 148.59 110.49 180)
+			(uuid "a0efe155-c684-4cdf-9729-eca6c8cba0e8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/2bd70688-6598-43b6-acf3-0b8d3b09b23e"
+					(page "6")
+				)
+			)
+		)
+	)
+)

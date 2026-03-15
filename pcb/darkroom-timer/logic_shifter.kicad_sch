@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "ce8276ea-5a95-428a-9b08-d66bf7f759c0")
+	(uuid "c0c0d4f1-e184-448a-92cf-be2a63d65a10")
 	(paper "A4")
 	(lib_symbols
 		(symbol "Device:R"
@@ -894,15 +894,6 @@
 				(hide yes)
 			)
 		)
-		(property "Placement" "Required"
-			(at 133.35 105.41 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
 		(pin "2"
 			(uuid "a1345685-a0f2-4472-861a-f68340f1b0ee")
 		)
@@ -1117,7 +1108,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 118.872 91.44 90)
 			(effects
 				(font
@@ -1145,15 +1136,6 @@
 			)
 		)
 		(property "InvenTree Part #" "96"
-			(at 120.65 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
 			(at 120.65 91.44 0)
 			(effects
 				(font
@@ -1217,7 +1199,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 144.272 91.44 90)
 			(effects
 				(font
@@ -1245,15 +1227,6 @@
 			)
 		)
 		(property "InvenTree Part #" "96"
-			(at 146.05 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
 			(at 146.05 91.44 0)
 			(effects
 				(font

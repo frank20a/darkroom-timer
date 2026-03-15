@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "6136012e-6a9a-4609-9f12-7497ca1825ed")
+	(uuid "bb2c73ed-5a0b-4105-ab89-1e9a22138280")
 	(paper "A4")
 	(lib_symbols
 		(symbol "Connector:Conn_01x06_Socket"
@@ -351,6 +351,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 88.9) (xy 168.91 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f65d835-8653-4f18-8d14-b5538b487ca6")
+	)
+	(wire
+		(pts
 			(xy 166.37 80.01) (xy 166.37 91.44)
 		)
 		(stroke
@@ -358,6 +368,16 @@
 			(type default)
 		)
 		(uuid "2e0a5404-a85d-4813-ad9c-b7abd8a757c6")
+	)
+	(wire
+		(pts
+			(xy 144.78 96.52) (xy 168.91 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e761bc3-152c-4f93-84c3-0d35b4d5a8dd")
 	)
 	(wire
 		(pts
@@ -381,23 +401,13 @@
 	)
 	(wire
 		(pts
-			(xy 166.37 91.44) (xy 168.91 91.44)
+			(xy 166.37 99.06) (xy 168.91 99.06)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "8927499b-0bef-476b-bbff-928ed998ab04")
-	)
-	(wire
-		(pts
-			(xy 144.78 96.52) (xy 168.91 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8d680eb6-bc77-4973-bc01-d14bf86b1372")
+		(uuid "7d4d9bd9-c502-4733-bf55-88ac56fa4f10")
 	)
 	(wire
 		(pts
@@ -411,13 +421,13 @@
 	)
 	(wire
 		(pts
-			(xy 144.78 93.98) (xy 168.91 93.98)
+			(xy 166.37 91.44) (xy 168.91 91.44)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "c45b6e1e-473e-447c-8ec7-0f552d2d1e9e")
+		(uuid "a88eab00-4d27-4495-b47c-0701c14157ff")
 	)
 	(wire
 		(pts
@@ -431,23 +441,13 @@
 	)
 	(wire
 		(pts
-			(xy 166.37 99.06) (xy 168.91 99.06)
+			(xy 144.78 93.98) (xy 168.91 93.98)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e0e1fff5-0a94-4f89-8295-030162833889")
-	)
-	(wire
-		(pts
-			(xy 168.91 88.9) (xy 168.91 77.47)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f2e6a128-428a-42cb-88b8-4a2aaf77f67f")
+		(uuid "e43fcf48-6b43-4981-9c22-8f7c458e77fd")
 	)
 	(wire
 		(pts
@@ -494,16 +494,16 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x06_Socket")
-		(at 173.99 93.98 0)
+		(at 173.99 96.52 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "f9102d1f-7939-4f36-9b3b-79fdd1ee3470")
 		(property "Reference" "J2"
-			(at 175.26 93.9799 0)
+			(at 175.26 96.5201 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -512,7 +512,7 @@
 			)
 		)
 		(property "Value" "Conn_01x06_Socket"
-			(at 175.26 96.5199 0)
+			(at 175.26 93.9801 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -521,8 +521,8 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
-			(at 173.99 93.98 0)
+		(property "Footprint" "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-6_1x06_P5.00mm_Horizontal"
+			(at 173.99 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -531,7 +531,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 173.99 93.98 0)
+			(at 173.99 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -540,16 +540,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x06, script generated"
-			(at 173.99 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
-			(at 173.99 93.98 0)
+			(at 173.99 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)

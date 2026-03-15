@@ -2,9 +2,148 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "c5085f92-b962-4aff-9490-4d513b78eda4")
+	(uuid "1395eb7b-0162-4f94-8303-3756c5712fa8")
 	(paper "A4")
 	(lib_symbols
+		(symbol "Device:C"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "C"
+				(at 0.635 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "C"
+				(at 0.635 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.9652 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Unpolarized capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "cap capacitor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "C_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "C_0_1"
+				(polyline
+					(pts
+						(xy -2.032 0.762) (xy 2.032 0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -2.032 -0.762) (xy 2.032 -0.762)
+					)
+					(stroke
+						(width 0.508)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "C_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 2.794)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R_Potentiometer"
 			(pin_names
 				(offset 1.016)
@@ -1833,6 +1972,32 @@
 			(embedded_fonts no)
 		)
 	)
+	(junction
+		(at 120.65 66.04)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9cc30261-f5f8-4bc9-b55d-3969bac2d8f2")
+	)
+	(no_connect
+		(at 130.81 115.57)
+		(uuid "14e60ac3-5f82-4cf8-8738-86d12d7fdf94")
+	)
+	(no_connect
+		(at 130.81 118.11)
+		(uuid "6013a93d-7335-44fa-82a1-fbc2f65bba1f")
+	)
+	(no_connect
+		(at 130.81 110.49)
+		(uuid "b2c1a8b5-2d6b-45ea-989a-03b8109f17d4")
+	)
+	(no_connect
+		(at 130.81 113.03)
+		(uuid "b5fb009e-1712-4d90-9221-4aabb5fac9e9")
+	)
+	(no_connect
+		(at 130.81 120.65)
+		(uuid "c240de80-98c6-4680-bba5-00210c9effe8")
+	)
 	(wire
 		(pts
 			(xy 205.74 107.95) (xy 205.74 95.25)
@@ -1872,6 +2037,16 @@
 			(type default)
 		)
 		(uuid "1cd6aabd-4a6f-4871-a43f-944afdd23d2d")
+	)
+	(wire
+		(pts
+			(xy 120.65 60.96) (xy 120.65 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "287adb9f-2efa-418c-93ee-021c6f5be58f")
 	)
 	(wire
 		(pts
@@ -2055,6 +2230,16 @@
 	)
 	(wire
 		(pts
+			(xy 120.65 66.04) (xy 120.65 74.93)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6ce6b39-8580-4dc7-b10a-e5ac80da47b9")
+	)
+	(wire
+		(pts
 			(xy 138.43 102.87) (xy 138.43 105.41)
 		)
 		(stroke
@@ -2194,7 +2379,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "PCM_SparkFun-Jumper:Jumper_2_NO"
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_Pad1.0x1.5mm"
 			(at 101.6 88.9 0)
 			(effects
 				(font
@@ -2214,15 +2399,6 @@
 		)
 		(property "Description" "Jumper, 2-pole, open"
 			(at 101.6 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
-			(at 101.6 88.9 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2379,7 +2555,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 120.65 74.93 0)
+		(at 120.65 60.96 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2388,7 +2564,7 @@
 		(fields_autoplaced yes)
 		(uuid "56c4e613-d5c6-4a72-ab3a-88c20f92c6c1")
 		(property "Reference" "#PWR05"
-			(at 120.65 78.74 0)
+			(at 120.65 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2397,7 +2573,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 120.65 69.85 0)
+			(at 120.65 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2405,7 +2581,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 120.65 74.93 0)
+			(at 120.65 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2414,7 +2590,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 120.65 74.93 0)
+			(at 120.65 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2423,7 +2599,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 120.65 74.93 0)
+			(at 120.65 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2438,6 +2614,83 @@
 			(project "darkroom-timer"
 				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/596c817a-8203-40ab-ad65-e9d64764bfd4"
 					(reference "#PWR05")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 124.46 66.04 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "7cb3539a-82bd-4c99-8c03-a1cf06fdae31")
+		(property "Reference" "C4"
+			(at 124.46 58.42 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "0.1uF"
+			(at 124.46 60.96 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+			(at 128.27 65.0748 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 124.46 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 124.46 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "InvenTree Part #" "742"
+			(at 124.46 66.04 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "328cc788-3368-49c9-b909-30314f505dad")
+		)
+		(pin "1"
+			(uuid "ae6fc727-41d8-4825-bb0d-44a966e6d075")
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/596c817a-8203-40ab-ad65-e9d64764bfd4"
+					(reference "C4")
 					(unit 1)
 				)
 			)
@@ -2510,6 +2763,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 128.27 66.04 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a2cb9dd1-6b11-4771-b6bb-149b0a83e2b5")
+		(property "Reference" "#PWR058"
+			(at 134.62 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 132.08 66.0399 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 128.27 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 128.27 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 128.27 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6781a1d9-39cc-40e9-b68a-7bbcff6ca955")
+		)
+		(instances
+			(project ""
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/596c817a-8203-40ab-ad65-e9d64764bfd4"
+					(reference "#PWR058")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Display_Character:CC56-12EWA")
 		(at 168.91 87.63 0)
 		(unit 1)
@@ -2563,15 +2883,6 @@
 			)
 		)
 		(property "InvenTree Part #" "731"
-			(at 168.91 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
 			(at 168.91 87.63 0)
 			(effects
 				(font
@@ -2653,7 +2964,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_ACP_CA6-H2,5_Horizontal"
+		(property "Footprint" "Frank:RKT6V"
 			(at 101.6 80.01 0)
 			(effects
 				(font
@@ -2680,7 +2991,7 @@
 				(hide yes)
 			)
 		)
-		(property "Placement" "Required"
+		(property "InvenTree Part #" "587"
 			(at 101.6 80.01 0)
 			(effects
 				(font
@@ -2762,15 +3073,6 @@
 			)
 		)
 		(property "InvenTree Part #" "727"
-			(at 120.65 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
 			(at 120.65 100.33 0)
 			(effects
 				(font

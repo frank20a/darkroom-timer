@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "373f291a-2e9c-4545-bb6e-412afaafa0e3")
+	(uuid "e999986b-8e78-4f17-ba2b-00323304360a")
 	(paper "A4")
 	(lib_symbols
 		(symbol "Device:R"
@@ -672,16 +672,6 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 81.28) (xy 148.59 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "251f06db-288d-4547-9c23-0127a050b4b0")
-	)
-	(wire
-		(pts
 			(xy 124.46 95.25) (xy 128.27 95.25)
 		)
 		(stroke
@@ -709,6 +699,16 @@
 			(type default)
 		)
 		(uuid "647c471a-2fae-4187-b197-46d20372c6ab")
+	)
+	(wire
+		(pts
+			(xy 148.59 81.28) (xy 148.59 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6a7f3dbd-307f-44b1-8023-3b03afdb17af")
 	)
 	(wire
 		(pts
@@ -759,6 +759,16 @@
 			(type default)
 		)
 		(uuid "f8b7a50d-2b01-4e64-8929-ac4b09aa5231")
+	)
+	(label "PWR_NEG"
+		(at 148.59 90.17 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7d880c40-ad78-429d-b8c5-592ab0f3569a")
 	)
 	(hierarchical_label "-L"
 		(shape output)
@@ -925,7 +935,7 @@
 				(hide yes)
 			)
 		)
-		(property "Placement" "Required"
+		(property "InvenTree Part #" "550"
 			(at 146.05 95.25 0)
 			(effects
 				(font
@@ -1136,7 +1146,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 126.492 102.87 90)
 			(effects
 				(font
@@ -1164,15 +1174,6 @@
 			)
 		)
 		(property "InvenTree Part #" "96"
-			(at 128.27 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
 			(at 128.27 102.87 0)
 			(effects
 				(font
@@ -1230,7 +1231,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
 			(at 134.62 97.028 90)
 			(effects
 				(font
@@ -1259,15 +1260,6 @@
 		)
 		(property "InvenTree Part #" "108"
 			(at 134.62 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Placement" "Required"
-			(at 134.62 95.25 90)
 			(effects
 				(font
 					(size 1.27 1.27)

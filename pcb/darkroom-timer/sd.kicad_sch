@@ -2,7 +2,7 @@
 	(version 20250114)
 	(generator "eeschema")
 	(generator_version "9.0")
-	(uuid "06051fbf-0e64-4228-8479-a5ff202cfc27")
+	(uuid "fba34161-d6db-4432-8437-ab1ad945b1d3")
 	(paper "A4")
 	(lib_symbols
 		(symbol "Connector:Micro_SD_Card_Det2"
@@ -615,6 +615,22 @@
 			(embedded_fonts no)
 		)
 	)
+	(no_connect
+		(at 125.73 87.63)
+		(uuid "53bd1df9-94e5-40e3-9beb-ced3e7cf14d1")
+	)
+	(no_connect
+		(at 125.73 107.95)
+		(uuid "5889e0e7-8900-4018-b830-bc46b15ff548")
+	)
+	(no_connect
+		(at 125.73 105.41)
+		(uuid "a647f9a6-e875-466d-a776-b046741a7f5c")
+	)
+	(no_connect
+		(at 125.73 110.49)
+		(uuid "cf0cc3a1-166c-4559-ac3a-97a7aca5673e")
+	)
 	(hierarchical_label "CLK"
 		(shape input)
 		(at 125.73 97.79 180)
@@ -638,7 +654,7 @@
 		(uuid "3c2cc7ca-1a6b-4253-bcf7-ce7c4b1f277e")
 	)
 	(hierarchical_label "DOUT"
-		(shape input)
+		(shape output)
 		(at 125.73 102.87 180)
 		(effects
 			(font
@@ -779,7 +795,7 @@
 				(hide yes)
 			)
 		)
-		(property "Placement" "Required"
+		(property "InvenTree Part #" "736"
 			(at 148.59 97.79 0)
 			(effects
 				(font

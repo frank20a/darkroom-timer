@@ -1,0 +1,1 @@
+[('SW1', 'C:\\Program Files\\KiCad\\9.0\\share\\kicad\\3dmodels\\Frank.3dshapes\\EC11_Rotary_Encoder_Switched.step'), ('SW4', 'C:\\Program Files\\KiCad\\9.0\\share\\kicad\\3dmodels\\Connector_Wire.3dshapes\\SolderWire-0.25sqmm_1x02_P4.5mm_D0.65mm_OD2mm.step'), ('RV1', 'C:\\Program Files\\KiCad\\9.0\\share\\kicad\\3dmodels\\Frank.3dshapes\\RKT6V.step')]

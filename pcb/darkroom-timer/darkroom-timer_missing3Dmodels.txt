@@ -1,0 +1,12 @@
+### Missing 3D models - created on 2026-03-21 22:22
+### Printed by checking_3D_models plugin
+Board file: C:/Users/frank/Desktop/darkroom-timer-1/pcb/darkroom-timer/darkroom-timer.kicad_pcb
+3D missing models written to:
+C:\Users\frank\Desktop\darkroom-timer-1\pcb\darkroom-timer\darkroom-timer_missing3Dmodels.txt
+-------
+('SW1', 'C:\\Program Files\\KiCad\\9.0\\share\\kicad\\3dmodels\\Frank.3dshapes\\EC11_Rotary_Encoder_Switched.step')
+('SW4', 'C:\\Program Files\\KiCad\\9.0\\share\\kicad\\3dmodels\\Connector_Wire.3dshapes\\SolderWire-0.25sqmm_1x02_P4.5mm_D0.65mm_OD2mm.step')
+('RV1', 'C:\\Program Files\\KiCad\\9.0\\share\\kicad\\3dmodels\\Frank.3dshapes\\RKT6V.step')
+-------
+NUM of 3D missing models:3
+checked extensions ['.stp', '.step', '.stpZ']

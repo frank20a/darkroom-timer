@@ -5,6 +5,9 @@
 #include <vector>
 #include <GxEPD2_BW.h>
 
+#include "inputs.hpp"
+#include "system.hpp"
+
 
 typedef GxEPD2_370_GDEY037T03 EPD_Type;
 typedef GxEPD2_BW<EPD_Type, EPD_Type::HEIGHT> DisplayType;

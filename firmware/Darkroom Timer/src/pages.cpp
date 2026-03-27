@@ -3,48 +3,44 @@
 
 
 void EPD_Page::render(EPD_Display* display) {
-    if (millis() - last_draw_time >= draw_interval_ms) {
-        last_draw_time = millis();
+    if (millis() - last_draw_time >= MIN_DRAW_INTERVAL_MS) {
+        if (draw_count >= FULL_REFRESH_THRESH) {
+            
+            display->setFullWindow();
+            display->firstPage();
+            do {
+                draw(display);
+            } while (display->nextPage());
 
-        if (draw_count >= full_refresh_draws) {
-            this->full_render(display);
+            last_draw_time = millis();
             draw_count = 0;
-        } else {
-            this->partial_render(display);
+        } else if (draw_condition()) {
+            draw_count++;
+
+            display->setPartialWindow(partial_x, partial_y, partial_w, partial_h);
+            display->firstPage();
+            do {
+                draw(display);
+            } while (display->nextPage());
+
+            last_draw_time = millis();
         }
     }
 }
 
 
-void TestPage::full_render(EPD_Display* display) {
-    display->setFullWindow();
-    display->firstPage();
-    do {
-        display->fillScreen(GxEPD_WHITE);
-
-        draw_knob(display, 150, 200, 35, (double)(input_data->encoder_data.encoder_value / 100.0));
-        draw_knob(display, 250, 200, 35, (double)(input_data->encoder_data.encoder_value / 100.0));
-        draw_knob(display, 350, 200, 35, (double)(input_data->encoder_data.encoder_value / 100.0));
-    } while (display->nextPage());
+void TestPage::draw(EPD_Display* display) {
+    draw_knob(display, 156, 200, (double)(input_data->encoder_data.encoder_value / 100.0), "Cyan");
+    draw_knob(display, 260, 200, (double)(input_data->encoder_data.encoder_value / 100.0), "Magenta", true);
+    draw_knob(display, 364, 200, (double)(input_data->encoder_data.encoder_value / 100.0), "Yellow");
 }
 
-void TestPage::partial_render(EPD_Display* display) {
-    if (input_data->encoder_data.encoder_delta != 0) {
-    // if (false) {
-        draw_count++;
-
-        display->setPartialWindow(100, 150, 500, 150);
-        display->firstPage();
-        do {
-            draw_knob(display, 150, 200, 35, (double)(input_data->encoder_data.encoder_value / 100.0));
-            draw_knob(display, 250, 200, 35, (double)(input_data->encoder_data.encoder_value / 100.0));
-            draw_knob(display, 350, 200, 35, (double)(input_data->encoder_data.encoder_value / 100.0));
-        } while (display->nextPage());
-    }
+bool TestPage::draw_condition() {
+    return input_data->encoder_data.encoder_delta != 0;
 }
 
 
-void draw_knob(EPD_Display* display, int center_x, int center_y, int radius, double value, double angle_range) {
+void draw_knob(EPD_Display* display, int center_x, int center_y, double value, char title[], bool selected, int radius, double angle_range) {
     if (value < 0.0 || value > 1.0) return; // Ensure value is between 0 and 1
     if (angle_range < M_PI || angle_range > 2 * M_PI) return; // Ensure angle range is between 180 and 360 degrees
 
@@ -79,7 +75,7 @@ void draw_knob(EPD_Display* display, int center_x, int center_y, int radius, dou
     if (end_angle < M_PI * 3 / 2) display->fillRect(center_x, center_y, radius + 1, radius + 1, GxEPD_WHITE);
     if (end_angle >= M_PI / 2 && end_angle < 3 * M_PI / 2) display->fillRect(center_x, center_y - radius, radius + 1, radius + 1, GxEPD_WHITE);
     if (end_angle > M_PI && end_angle <= 3 * M_PI / 2) display->fillRect(center_x - radius - 1, center_y - radius - 1, radius + 2, radius + 2, GxEPD_WHITE);
-    
+
     if (end_angle > M_PI / 2 && end_angle <= M_PI){
         display->fillTriangle(
             center_x, center_y,
@@ -130,19 +126,27 @@ void draw_knob(EPD_Display* display, int center_x, int center_y, int radius, dou
         );
     }
 
+    // Draw the knob center and indicator
     display->fillCircle(center_x, center_y, radius * 0.1, GxEPD_BLACK);
     display->drawLine(center_x, center_y, center_x + radius * 0.65 * cos(end_angle), center_y - radius * 0.65 * sin(end_angle), GxEPD_BLACK);
     display->drawLine(center_x, center_y, center_x + radius * 0.65 * cos(end_angle + 0.02), center_y - radius * 0.65 * sin(end_angle + 0.02), GxEPD_BLACK);
     display->drawLine(center_x, center_y, center_x + radius * 0.65 * cos(end_angle - 0.02), center_y - radius * 0.65 * sin(end_angle - 0.02), GxEPD_BLACK);
 
+    // Print value
     int show_val = (int)(value * 100);
     int text_offset;
     if (show_val < 10) text_offset = 6;
     else if (show_val < 100) text_offset = 12;
     else text_offset = 18;
-
     display->setCursor(center_x - text_offset, center_y + radius * 0.65);
     display->setTextSize(2);
     display->print((int)(value * 100));
+    
+    // Print title
+    int16_t tbx, tby; uint16_t tbw, tbh;
+    display->setTextSize(1);
+    display->getTextBounds(title, 0, 0, &tbx, &tby, &tbw, &tbh);
+    display->setCursor(center_x - tbw / 2, center_y - radius * 1.05 - tbh);
+    display->print(title);
         
 }

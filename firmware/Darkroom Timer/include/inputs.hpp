@@ -4,11 +4,30 @@
 #include <vector>
 
 
+enum DigitalInputs : uint8_t {
+    ENCODER_BTN = 0,
+    BACK_BTN,
+    INPUT_2,
+    INPUT_3,
+    INPUT_4,
+    INPUT_5,
+    INPUT_6,
+    INPUT_7,
+    SW0_POS0,
+    SW0_POS1,
+    SW0_POS2,
+    SW1_POS0,
+    SW1_POS1,
+    SW1_POS2,
+    START_BTN,
+    INPUT_15
+};
+
 typedef struct {
     union {
         struct {
             uint16_t enc_btn  : 1;
-            uint16_t input_1  : 1;
+            uint16_t bck_btn  : 1;
             uint16_t input_2  : 1;
             uint16_t input_3  : 1;
             uint16_t input_4  : 1;
@@ -25,6 +44,7 @@ typedef struct {
             uint16_t input_15 : 1;
         };
         uint16_t inputs;
+        uint8_t input_bytes[2];
     };
     
     bool operator[](int index) const {
@@ -43,16 +63,16 @@ typedef struct {
         };
         unsigned int analog_values[4];
     };
-} AnalogInput;
+} AnalogInputs;
 
 
 typedef struct {
-    long int encoder_value;
+    long long encoder_value;
     int encoder_delta;
 } EncoderData;
 
 
-enum EventType : unsigned int {
+enum EventType : uint8_t {
     ENCODER_CHANGE,
     ENCODER_INCREASE,
     ENCODER_DECREASE,
@@ -69,14 +89,15 @@ typedef struct {
     EventType type;
     union {
         double double_value;
-        long int long_value;
+        long long long_value;
     };
+    // unsigned long timestamp;
 } Event;
 
 
 typedef struct {
     DigitalInput digital_inputs;
-    AnalogInput analog_inputs;
+    // AnalogInputs analog_inputs;
     EncoderData encoder_data;
     std::vector<Event> events;
 } InputData;

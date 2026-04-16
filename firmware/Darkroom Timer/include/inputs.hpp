@@ -67,7 +67,7 @@ typedef struct {
 
 
 typedef struct {
-    long long encoder_value;
+    long encoder_value;
     int encoder_delta;
 } EncoderData;
 
@@ -89,7 +89,7 @@ typedef struct {
     EventType type;
     union {
         double double_value;
-        long long long_value;
+        long long_value;
     };
     // unsigned long timestamp;
 } Event;

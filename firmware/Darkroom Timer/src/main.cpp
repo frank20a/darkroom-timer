@@ -2,12 +2,15 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <cstdint>
+#include <stdio.h>
 
 #include "inputs.hpp"
 #include "system.hpp"
 #include "pin_defs.hpp"
-#include "epd.hpp"
+#include "ssd.hpp"
+// #include "epd.hpp"
 #include "encoder.hpp"
+// #include "../pio/sn74165.pio.h"
 
 
 /* ======================== Constant definitions ======================== */
@@ -18,12 +21,15 @@
 /* ======================== Variable definitions ======================== */
 InputData input_data;
 SystemState system_state;
-EPD_Display epd(EPD_CS_PIN, EPD_DC_PIN, EPD_RES_PIN, EPD_BUSY_PIN, &input_data, &system_state);
+// EPD_Display epd(EPD_CS_PIN, EPD_DC_PIN, EPD_RES_PIN, EPD_BUSY_PIN, &input_data, &system_state);
 Encoder encoder(ENC1_A_PIN);
+SSD ssd(SSD_CS_PIN);
 
 /* ======================== Function declarations ======================== */
 void read_inputs();
+void write_outputs();
 void create_events();
+void print_binary8(uint8_t value);
 
 
 /* ======================== Function definitions =========================== */
@@ -41,19 +47,35 @@ void setup() {
     pinMode(DI_CLK_PIN, OUTPUT);
     pinMode(DI_PL_PIN, OUTPUT);
     pinMode(DI_IN_PIN, INPUT);
+    // digitalWrite(DI_CLK_PIN, LOW);
+    digitalWrite(DI_PL_PIN, HIGH);
 
     // Initialize encoder
     encoder.begin();
 
+    // Initialize the shift registers (digital inputs)
+	// sn74165::shiftreg_init();
+
+    // Initialize 7-segment display
+    ssd.begin();
+
     // Initialize EPD
-    epd.init();
+    // epd.init();
 }
 
 
 void loop() {
     read_inputs();
+    write_outputs();
 
-    epd.render();
+    // epd.render();
+}
+
+
+void print_binary8(uint8_t value) {
+    for (int bit = 7; bit >= 0; --bit) {
+        Serial.print((value >> bit) & 0x01);
+    }
 }
 
 
@@ -66,14 +88,27 @@ void read_inputs() {
     last_input_read_time = current_time;
 
     // Read digital inputs
-    digitalWrite(DI_CLK_PIN, LOW);
+    digitalWrite(DI_PL_PIN, LOW);  // Load parallel inputs into shift register
+    delayMicroseconds(5);           // Short delay to ensure loading is complete
+    digitalWrite(DI_PL_PIN, HIGH); // Return to shift mode
     input_data.digital_inputs.input_bytes[0] = shiftIn(DI_IN_PIN, DI_CLK_PIN, MSBFIRST);
     input_data.digital_inputs.input_bytes[1] = shiftIn(DI_IN_PIN, DI_CLK_PIN, MSBFIRST);
+    // Serial.print("Digital inputs: ");
+    // print_binary8(input_data.digital_inputs.input_bytes[1]);
+    // Serial.print(" ");
+    // print_binary8(input_data.digital_inputs.input_bytes[0]);
+    // Serial.println();
 
     // Read encoder value
-    long long int encoder_value = encoder.getValue();
+    long encoder_value = encoder.getValue();
     input_data.encoder_data.encoder_delta = encoder_value - input_data.encoder_data.encoder_value;
     input_data.encoder_data.encoder_value = encoder_value;
+    if(input_data.encoder_data.encoder_delta != 0) {
+        Serial.print("Encoder delta: ");
+        Serial.print(input_data.encoder_data.encoder_delta);
+        Serial.print(", Encoder value: ");
+        Serial.println(input_data.encoder_data.encoder_value);
+    }
 
     create_events();
 }
@@ -144,4 +179,8 @@ void create_events() {
     }
 
     previous_input_data = input_data;
+}
+
+void write_outputs() {
+    ssd.setNumber(input_data.encoder_data.encoder_value);
 }

@@ -21,7 +21,7 @@
 #define BUZZER_PIN 22
 
 #define ENC1_A_PIN 2
-// #define ENC1_B_PIN 3     // Assume that it is ENC1_A_PIN + 1
+#define ENC1_B_PIN 3     // Assume that it is ENC1_A_PIN + 1
 
 #define SSD_CS_PIN 20
 #define SD_CS_PIN 21

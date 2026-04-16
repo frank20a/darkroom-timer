@@ -4,8 +4,10 @@
 
 void EPD_Page::render(EPD_Display* display) {
     if (millis() - last_draw_time >= MIN_DRAW_INTERVAL_MS) {
+        Serial.println("Rendering page");
         if (draw_count >= FULL_REFRESH_THRESH) {
             
+            Serial.println("\tPerforming full refresh");
             display->setFullWindow();
             display->firstPage();
             do {
@@ -15,6 +17,8 @@ void EPD_Page::render(EPD_Display* display) {
             last_draw_time = millis();
             draw_count = 0;
         } else if (draw_condition()) {
+            Serial.println("\tPerforming partial refresh");
+
             draw_count++;
 
             display->setPartialWindow(partial_x, partial_y, partial_w, partial_h);
@@ -30,6 +34,7 @@ void EPD_Page::render(EPD_Display* display) {
 
 
 void TestPage::draw(EPD_Display* display) {
+    Serial.println("\t\tDrawing TestPage");
     draw_knob(display, 156, 200, (double)(input_data->encoder_data.encoder_value / 100.0), "Cyan");
     draw_knob(display, 260, 200, (double)(input_data->encoder_data.encoder_value / 100.0), "Magenta", true);
     draw_knob(display, 364, 200, (double)(input_data->encoder_data.encoder_value / 100.0), "Yellow");

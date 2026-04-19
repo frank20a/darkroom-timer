@@ -1,6 +1,7 @@
 /* ======================== Library includes ======================== */
 #include <Arduino.h>
 #include <SPI.h>
+#include <SD.h>
 #include <cstdint>
 #include <stdio.h>
 
@@ -61,6 +62,21 @@ void setup() {
 
     // Initialize EPD
     // epd.init();
+
+    // Initialize SD Card
+    delay(2000);
+    if(!SD.begin(SD_CS_PIN)) {
+        Serial.println("Failed to initialize SD card.");
+        return;
+    } else {
+        File file = SD.open("readme.txt", FILE_READ);
+        if (file) {
+            Serial.println(file.readString());
+            file.close();
+        } else {
+            Serial.println("Failed to open readme.txt.");
+        }
+    }
 }
 
 

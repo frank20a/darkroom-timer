@@ -814,7 +814,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "28bcc9b7-ec92-48e0-a684-11d6709ed953")
+		(uuid "272d3d8a-ae81-44b7-a71c-facd70fcfb69")
 	)
 	(wire
 		(pts
@@ -854,7 +854,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "963e60e9-8493-425d-8b5d-df8d66e0390f")
+		(uuid "9363144d-84a3-4598-ab30-af14da11b6ba")
 	)
 	(wire
 		(pts
@@ -958,7 +958,7 @@
 	)
 	(global_label "SCK 3V3"
 		(shape input)
-		(at 153.67 99.06 0)
+		(at 153.67 101.6 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -968,7 +968,7 @@
 		)
 		(uuid "2813c6cd-3b21-4687-89f5-b160f69348a4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 164.8799 99.06 0)
+			(at 164.8799 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -980,7 +980,7 @@
 	)
 	(global_label "MOSI 3V3"
 		(shape input)
-		(at 153.67 101.6 0)
+		(at 153.67 99.06 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -990,7 +990,7 @@
 		)
 		(uuid "a9e13092-445f-447f-8b6c-259d35676ed5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 165.7266 101.6 0)
+			(at 165.7266 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1070,7 +1070,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_IDC:IDC-Header_2x04_P2.54mm_Vertical"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical"
 			(at 128.27 96.52 0)
 			(effects
 				(font

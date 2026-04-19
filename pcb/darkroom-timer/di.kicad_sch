@@ -1585,6 +1585,12 @@
 		(uuid "8c3b1e00-e2d6-4c27-be41-623629d9fa7b")
 	)
 	(junction
+		(at 119.38 140.97)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "be22ad57-11ed-46b6-8037-cbf104066dbd")
+	)
+	(junction
 		(at 160.02 121.92)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1629,10 +1635,6 @@
 	(no_connect
 		(at 147.32 148.59)
 		(uuid "6453df62-3f7f-42b5-92e8-a46b43384e8c")
-	)
-	(no_connect
-		(at 147.32 140.97)
-		(uuid "6b27acde-9b65-4902-ae7e-67ab7ad7fe4d")
 	)
 	(no_connect
 		(at 147.32 156.21)
@@ -1789,6 +1791,16 @@
 			(type default)
 		)
 		(uuid "244d3295-6916-4431-af2e-6b8d567d94f2")
+	)
+	(wire
+		(pts
+			(xy 119.38 140.97) (xy 147.32 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "253fd621-a709-43c6-a51c-e88aeab70899")
 	)
 	(wire
 		(pts
@@ -1952,6 +1964,16 @@
 	)
 	(wire
 		(pts
+			(xy 114.3 140.97) (xy 119.38 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "568acbc6-db02-4f81-8151-a04f828a9b71")
+	)
+	(wire
+		(pts
 			(xy 177.8 128.27) (xy 177.8 135.89)
 		)
 		(stroke
@@ -1959,6 +1981,16 @@
 			(type default)
 		)
 		(uuid "5ac51f5b-79a3-494c-9108-f7ebc8986441")
+	)
+	(wire
+		(pts
+			(xy 119.38 140.97) (xy 119.38 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "60e3130a-0d5b-4c15-a224-3083a2118618")
 	)
 	(wire
 		(pts
@@ -2049,6 +2081,16 @@
 			(type default)
 		)
 		(uuid "87796a28-b1ca-4b36-a8d5-f387035b4b59")
+	)
+	(wire
+		(pts
+			(xy 100.33 140.97) (xy 104.14 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b35b35a-2c17-4f87-8efe-22508263f15f")
 	)
 	(wire
 		(pts
@@ -2901,6 +2943,84 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 119.38 147.32 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp yes)
+		(uuid "26466d26-1117-4363-8e67-64bd30b9eee4")
+		(property "Reference" "R30"
+			(at 119.38 149.352 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "10k"
+			(at 121.92 148.844 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+			(at 117.602 147.32 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 119.38 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 119.38 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "InvenTree Part #" "96"
+			(at 119.38 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "9aa1f0d1-8af3-4198-b6cc-eaa9147ce6fc")
+		)
+		(pin "1"
+			(uuid "04cd289d-4f85-4ca1-b956-b843074144c0")
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/34326015-a577-49a0-a21f-1e1a59cf9b83"
+					(reference "R30")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 167.64 39.37 90)
 		(unit 1)
@@ -3256,6 +3376,141 @@
 			(project ""
 				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/34326015-a577-49a0-a21f-1e1a59cf9b83"
 					(reference "C3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 100.33 140.97 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "4ea17840-24c8-46b9-9bbd-33e6e0784af2")
+		(property "Reference" "#PWR074"
+			(at 104.14 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 96.52 140.9699 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 100.33 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 100.33 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 100.33 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "73c683ef-7a21-4111-884b-98eb22df00ad")
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/34326015-a577-49a0-a21f-1e1a59cf9b83"
+					(reference "#PWR074")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Switch:SW_Push")
+		(at 109.22 140.97 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5ad754c0-fc3c-4692-b982-71a220293a09")
+		(property "Reference" "SW5"
+			(at 109.22 142.748 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Start Switch"
+			(at 109.22 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Button_Switch_THT:SW_PUSH_6mm_H13mm"
+			(at 109.22 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 109.22 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Push button switch, generic, two pins"
+			(at 109.22 140.97 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b9949126-b80c-4088-873d-6c78e3b6c296")
+		)
+		(pin "2"
+			(uuid "59f05bd6-728c-49b3-ad0a-83230a3fcfa1")
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/34326015-a577-49a0-a21f-1e1a59cf9b83"
+					(reference "SW5")
 					(unit 1)
 				)
 			)
@@ -4672,6 +4927,72 @@
 			(project "darkroom-timer"
 				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/34326015-a577-49a0-a21f-1e1a59cf9b83"
 					(reference "SW4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 119.38 151.13 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e216f9ac-d6b2-48bf-8722-bccaaebe2207")
+		(property "Reference" "#PWR073"
+			(at 119.38 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 119.38 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 119.38 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 119.38 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 119.38 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4ae1b4d9-e003-4888-a7d9-5ba03fd533ab")
+		)
+		(instances
+			(project "darkroom-timer"
+				(path "/c97b450d-2c45-46f5-9f2c-8311aa9564ad/34326015-a577-49a0-a21f-1e1a59cf9b83"
+					(reference "#PWR073")
 					(unit 1)
 				)
 			)

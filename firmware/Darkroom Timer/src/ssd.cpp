@@ -23,28 +23,51 @@ void SSD::setBrightness(uint8_t brightness) {
     writeByte(0x0A, brightness);
 }
 
-void SSD::setDigit(uint8_t digit, uint8_t value) {
+void SSD::setDigit(uint8_t digit, uint8_t value, bool decimal) {
     if (digit < 1 || digit > 4) {
         return; // Invalid digit index
     }
+
+    if (decimal) {
+        value |= 0x80; // Set the decimal point bit
+    }
+
     writeByte(digit, value);
 }
 
-void SSD::setNumber(unsigned int number) {
-    if (number > 9999) return; // Number too large for 4 digits
+void SSD::setNumber(int number) {
+    if (number > 9999 || number < -999) return; // Number too large for 4 digits
 
     uint8_t digits[4];
-    digits[0] = number / 1000;
-    digits[1] = (number / 100) % 10;
-    digits[2] = (number / 10) % 10;
-    digits[3] = number % 10;
-
-    digits[2] = (digits[0] || digits[1] || digits[2]) ? digits[2] : 0xF; // Blank leading zero
-    digits[1] = (digits[0] || digits[1]) ? digits[1] : 0xF; // Blank leading zero
-    digits[0] = digits[0] ? digits[0] : 0xF; // Blank leading zero
+    getDigits(number, digits);
 
     for (uint8_t i = 0; i < 4; i++) {
         setDigit(i + 1, digits[i]);
+    }
+}
+
+void SSD::setNumber(float number) {
+    if (number > 9999 || number < -999) return; // Number too large for 4 digits
+
+    int intNumber;
+    int decimalPoints;
+
+    if (number >= 1000 || number <= -100) {
+        intNumber = (int)number;
+        decimalPoints = 0;
+    } else if (intNumber >= 100 || intNumber <= -10) {
+        intNumber = (int)(number * 10);
+        decimalPoints = 1;
+    } else {
+        intNumber = (int)(number * 100);
+        decimalPoints = 2;
+    }
+    
+    uint8_t digits[4];
+    getDigits(intNumber, digits);
+
+    for (uint8_t i = 0; i < 4; i++) {
+        setDigit(i + 1, digits[i], i == 3 - decimalPoints && decimalPoints > 0);
     }
 }
 
@@ -56,5 +79,25 @@ void SSD::writeByte(uint8_t reg, uint8_t data) {
     SPI.endTransaction();
 }
 
+void SSD::getDigits(int number, uint8_t* digits) {
+    bool neg = number < 0;
+    number = abs(number);
 
+    digits[0] = number / 1000;
+    digits[1] = (number / 100) % 10;
+    digits[2] = (number / 10) % 10;
+    digits[3] = number % 10;
 
+    digits[2] = (digits[0] || digits[1] || digits[2]) ? digits[2] : 0xF; // Blank leading zero
+    digits[1] = (digits[0] || digits[1]) ? digits[1] : 0xF; // Blank leading zero
+    digits[0] = digits[0] ? digits[0] : 0xF; // Blank leading zero
+
+    if (neg) {
+        if (number > 99)
+            digits[0] = 0xA; // '-' symbol for thousands place if number is > 99
+        else if (number > 9)
+            digits[1] = 0xA; // '-' symbol for hundreds place if number is <= 99
+        else
+            digits[2] = 0xA; // '-' symbol for tens place if number
+    }
+}

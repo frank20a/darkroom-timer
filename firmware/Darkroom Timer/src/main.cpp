@@ -182,5 +182,5 @@ void create_events() {
 }
 
 void write_outputs() {
-    ssd.setNumber(input_data.encoder_data.encoder_value);
+    ssd.setNumber(millis() / 1000.0);
 }

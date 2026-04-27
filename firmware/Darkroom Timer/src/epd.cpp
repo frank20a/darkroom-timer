@@ -1,21 +1,32 @@
-#include "pages.hpp"
 #include "epd.hpp"
+#include "pages.hpp"
 
 
-EPD_Display::EPD_Display(int CS, int DC, int RES, int BUSY, InputData* input_data, SystemState* system_state) : DisplayType(EPD_Type(CS, DC, RES, BUSY)) {
-    this->pages.push_back(new TestPage(input_data, system_state));
+EPD_Display::EPD_Display(int CS, int DC, int RES, int BUSY, SystemState* system_state) : DisplayType(EPD_Type(CS, DC, RES, BUSY)), system_state(system_state) {
+    pinMode(CS, OUTPUT);
+    digitalWrite(CS, HIGH);
+
+    pages[PageIndex::TEST] = new TestPage(system_state, this);
+    pages[PageIndex::SETTINGS] = new SettingsPage(system_state, this);
+    pages[PageIndex::ABOUT] = new AboutPage(system_state, this);
 }
 
-void EPD_Display::init() {
+bool EPD_Display::init() {
     DisplayType::init();
 
-    this->setRotation(3);
-    this->setTextColor(GxEPD_BLACK);
+    setRotation(3);
+    setTextColor(GxEPD_BLACK);
 
-    this->setFullWindow();
-    this->fillScreen(GxEPD_WHITE);
+    setFullWindow();
+    fillScreen(GxEPD_WHITE);
+    
+    return true;
+}
+
+void EPD_Display::execute_logic() {
+    pages[current_page]->execute_logic();
 }
 
 void EPD_Display::render() {
-    pages[current_page]->render(this);
+    pages[current_page]->render();
 }

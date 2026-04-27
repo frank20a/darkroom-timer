@@ -1,6 +1,6 @@
 #include "ssd.hpp"
 
-void SSD::begin() {
+bool SSD::begin() {
     // Set proper pin modes and initial states
     pinMode(cs_pin, OUTPUT);
     digitalWrite(cs_pin, HIGH);  // Deselect the display
@@ -14,6 +14,8 @@ void SSD::begin() {
     writeByte(0x0B, 0x04); // Scan limit: display 4 digits
     writeByte(0x0C, 0x01); // Shutdown register: normal operation
     writeByte(0x0F, 0x00); // Display test: off
+
+    return true;
 }
 
 void SSD::setBrightness(uint8_t brightness) {

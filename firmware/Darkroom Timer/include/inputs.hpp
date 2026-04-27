@@ -5,7 +5,7 @@
 
 
 enum DigitalInputs : uint8_t {
-    ENCODER_BTN = 0,
+    ENCODER_BTN = 1,
     BACK_BTN,
     INPUT_2,
     INPUT_3,
@@ -23,7 +23,7 @@ enum DigitalInputs : uint8_t {
     INPUT_15
 };
 
-typedef struct {
+struct DigitalInput {
     union {
         struct {
             uint16_t enc_btn  : 1;
@@ -50,10 +50,10 @@ typedef struct {
     bool operator[](int index) const {
         return (inputs >> index) & 1;
     }
-} DigitalInput;
+};
 
 
-typedef struct {
+struct AnalogInputs {
     union {
         struct {
             unsigned int analog_0;
@@ -63,13 +63,13 @@ typedef struct {
         };
         unsigned int analog_values[4];
     };
-} AnalogInputs;
+};
 
 
-typedef struct {
+struct EncoderData {
     long encoder_value;
     int encoder_delta;
-} EncoderData;
+};
 
 
 enum EventType : uint8_t {
@@ -80,24 +80,34 @@ enum EventType : uint8_t {
     DIGITAL_INPUT_RISE,
     DIGITAL_INPUT_FALL,
     DIGITAL_INPUT_LONG,
+    SWITCH_CHANGE,
     ANALOG_INPUT_CHANGE,
     ANALOG_INPUT_INCREASE,
     ANALOG_INPUT_DECREASE
 };
 
-typedef struct {
+struct Event {
     EventType type;
     union {
         double double_value;
         long long_value;
     };
     // unsigned long timestamp;
-} Event;
+};
 
 
-typedef struct {
+struct InputData {
     DigitalInput digital_inputs;
     // AnalogInputs analog_inputs;
     EncoderData encoder_data;
+    uint8_t switch_states[2];
     std::vector<Event> events;
-} InputData;
+
+    bool operator!=(const InputData& other) {
+        return digital_inputs.inputs != other.digital_inputs.inputs ||
+            encoder_data.encoder_value != other.encoder_data.encoder_value ||
+            encoder_data.encoder_delta != other.encoder_data.encoder_delta ||
+            switch_states[0] != other.switch_states[0] ||
+            switch_states[1] != other.switch_states[1];
+    }
+};

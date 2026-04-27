@@ -12,7 +12,7 @@
 class Encoder {
     public:
         Encoder(uint pinA);
-        void begin();
+        bool begin();
         long int getValue() { return this->encoder_value / 4; };
 
     private:

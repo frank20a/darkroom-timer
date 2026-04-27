@@ -1,27 +1,44 @@
 #pragma once
 
+
 #define ENABLE_GxEPD2_GFX 0
 
-#include <vector>
+
+#include <map>
 #include <GxEPD2_BW.h>
 
 #include "inputs.hpp"
 #include "system.hpp"
 
 
+// typedef for shorter display type name
 typedef GxEPD2_370_GDEY037T03 EPD_Type;
 typedef GxEPD2_BW<EPD_Type, EPD_Type::HEIGHT> DisplayType;
 
+
+// Forward declarations to avoid circular dependencies
 class EPD_Page;
 
 
-class EPD_Display : public DisplayType {
-public:
-    EPD_Display(int CS, int DC, int RES, int BUSY, InputData* input_data, SystemState* system_state);
-    void init();
-    void render();
+enum class PageIndex {
+    TEST = 0,
+    TIMER,
+    FSTOP,
+    SETTINGS,
+    ABOUT
+};
 
-private:
-    unsigned short int current_page = 0;
-    std::vector<EPD_Page *> pages;
+
+class EPD_Display : public DisplayType {
+    public:
+        EPD_Display(int CS, int DC, int RES, int BUSY, SystemState* system_state);
+        bool init();
+        void execute_logic();
+        void render();
+        void set_page(PageIndex page) { current_page = page; }
+
+    private:
+        PageIndex current_page = PageIndex::TEST;
+        std::map<PageIndex, EPD_Page *> pages;
+        SystemState* system_state;
 };

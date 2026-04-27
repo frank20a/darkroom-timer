@@ -9,11 +9,11 @@ Encoder::Encoder(uint pinA) : pinA(pinA), encoder_value(0) {
     Encoder::instance = this;                                                   // Register this instance in the static instances array so we can refer to it from the static IRQ handler
 }
 
-void Encoder::begin() {
+bool Encoder::begin() {
     // This PIO program uses a fixed .origin 0 jump table, so it must be loaded at offset 0.
     if (!pio_can_add_program_at_offset(pio, &pio_rotary_encoder_program, 0)) {
         Serial.println("Encoder PIO error: program offset 0 unavailable");
-        return;
+        return false;
     }
 
     program_offset = pio_add_program_at_offset(pio, &pio_rotary_encoder_program, 0);
@@ -34,6 +34,8 @@ void Encoder::begin() {
     irq_set_enabled(PIO0_IRQ_0, true);                                          // Enable the PIO interrupt
     pio_set_irq0_source_enabled(pio, pis_interrupt0, true);                     // Enable the state machine's IRQ output to cause an interrupt on the processor
     pio_set_irq0_source_enabled(pio, pis_interrupt1, true);
+    
+    return true;
 }
 
 void Encoder::encoder_pio_irq_handler() {

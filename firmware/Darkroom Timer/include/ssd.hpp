@@ -7,7 +7,7 @@
 class SSD {
     public:
         SSD(uint8_t cs_pin) : cs_pin(cs_pin) {}
-        void begin();
+        bool begin();
         void setBrightness(uint8_t brightness);
         void setDigit(uint8_t digit, uint8_t value, bool decimal);
         void setDigit(uint8_t digit, uint8_t value) { setDigit(digit, value, false); }

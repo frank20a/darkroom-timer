@@ -28,6 +28,7 @@ struct SystemSettings {
     int analog_output_range[3][2] = {0}; // [light_source][min/max]
     double analog_output_voltage_limit = 0;
     double analog_input_voltage = 0;
+    unsigned int buzzer_frequency = 3000; // In Hz
     unsigned int magic_number = 0xDEADBEEF; // For validating settings data
 };
 

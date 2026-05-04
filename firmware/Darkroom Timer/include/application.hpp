@@ -44,7 +44,7 @@ class Application {
         void save_settings();
         void reset_settings();
 
-        SystemState system_state;
+        SystemState system;
         
         EPD_Display *epd;
         Encoder *encoder;

@@ -2,13 +2,9 @@
 #include "pages.hpp"
 
 
-EPD_Display::EPD_Display(int CS, int DC, int RES, int BUSY, SystemState* system_state) : DisplayType(EPD_Type(CS, DC, RES, BUSY)), system_state(system_state) {
+EPD_Display::EPD_Display(int CS, int DC, int RES, int BUSY, SystemState* system) : DisplayType(EPD_Type(CS, DC, RES, BUSY)), system(system) {
     pinMode(CS, OUTPUT);
     digitalWrite(CS, HIGH);
-
-    pages[PageIndex::TEST] = new TestPage(system_state, this);
-    pages[PageIndex::SETTINGS] = new SettingsPage(system_state, this);
-    pages[PageIndex::ABOUT] = new AboutPage(system_state, this);
 }
 
 bool EPD_Display::init() {
@@ -19,14 +15,19 @@ bool EPD_Display::init() {
 
     setFullWindow();
     fillScreen(GxEPD_WHITE);
+
+    new TestPage(system, this);
+    new SettingsPage(system, this);
+    new SettingsValuePage(system, this);
+    new AboutPage(system, this);
     
     return true;
 }
 
 void EPD_Display::execute_logic() {
-    pages[current_page]->execute_logic();
+    EPD_Page::pages[current_page]->execute_logic();
 }
 
 void EPD_Display::render() {
-    pages[current_page]->render();
+    EPD_Page::pages[current_page]->render();
 }

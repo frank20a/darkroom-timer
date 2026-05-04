@@ -15,13 +15,15 @@ bool SSD::begin() {
     writeByte(0x0C, 0x01); // Shutdown register: normal operation
     writeByte(0x0F, 0x00); // Display test: off
 
+    clear();
+
     return true;
 }
 
 void SSD::setBrightness(uint8_t brightness) {
-    if (brightness > 0x0F) {
-        brightness = 0x0F; // Cap brightness to max value
-    }
+    if (brightness > 0x0F) 
+        brightness = 0x0F;
+
     writeByte(0x0A, brightness);
 }
 
@@ -37,6 +39,12 @@ void SSD::setDigit(uint8_t digit, uint8_t value, bool decimal) {
     writeByte(digit, value);
 }
 
+void SSD::clear() {
+    for (uint8_t i = 1; i <= 4; i++) {
+        writeByte(i, 0xF); // Blank character
+    }
+}
+
 void SSD::setNumber(int number) {
     if (number > 9999 || number < -999) return; // Number too large for 4 digits
 
@@ -48,21 +56,31 @@ void SSD::setNumber(int number) {
     }
 }
 
-void SSD::setNumber(float number) {
-    if (number > 9999 || number < -999) return; // Number too large for 4 digits
-
+void SSD::setNumber(float number, bool full_decimal) {
     int intNumber;
     int decimalPoints;
 
-    if (number >= 1000 || number <= -100) {
-        intNumber = (int)number;
-        decimalPoints = 0;
-    } else if (intNumber >= 100 || intNumber <= -10) {
+    if (full_decimal) {
+        if (number > 9999 || number < -999) return; // Number too large for 4 digits
+
+        if (number >= 1000 || number <= -100) {
+            intNumber = (int)number;
+            decimalPoints = 0;
+        } else if (number >= 100 || number <= -10) {
+            intNumber = (int)(number * 10);
+            decimalPoints = 1;
+        } else if (number >= 10 || number <= -1) {
+            intNumber = (int)(number * 100);
+            decimalPoints = 2;
+        } else {
+            intNumber = (int)(number * 1000);
+            decimalPoints = 3;
+        }
+    } else {
+        if (number > 999.9 || number < -99.9) return; // Number too large for 4 digits with 1 decimal point
+
         intNumber = (int)(number * 10);
         decimalPoints = 1;
-    } else {
-        intNumber = (int)(number * 100);
-        decimalPoints = 2;
     }
     
     uint8_t digits[4];

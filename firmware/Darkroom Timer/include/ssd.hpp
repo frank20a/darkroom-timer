@@ -13,8 +13,11 @@ class SSD {
         void setDigit(uint8_t digit, uint8_t value) { setDigit(digit, value, false); }
         void setNumber(int number);
         void setNumber(long number) { setNumber((int)number); }
-        void setNumber(float number);
-        void setNumber(double number) { setNumber((float)number); }
+        void setNumber(float number, bool full_decimal);
+        void setNumber(float number) { setNumber(number, false); };
+        void setNumber(double number, bool full_decimal) { setNumber((float)number, full_decimal); }
+        void setNumber(double number) { setNumber((float)number, false); }
+        void clear();
 
     private:
         uint8_t cs_pin;

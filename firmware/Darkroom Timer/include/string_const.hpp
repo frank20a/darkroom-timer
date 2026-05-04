@@ -1,7 +1,9 @@
 #pragma once
 
 
-#define NUM_SETTINGS_MENU_ITEMS 13
+#define NUM_SETTINGS_MENU_ITEMS 15
+#define LIGHT_SOURCE_OPTIONS 4
+#define AO_FUNCTION_OPTIONS 4
 
 
 namespace string_const {
@@ -12,10 +14,18 @@ namespace string_const {
         "Triple Analog"
     };
 
+    static const char* AOFunctions[] = {
+        "Linear",
+        "Exponential",
+        "Polynomial 2",
+        "Polynomial 3"
+    };
+
     static const char* SettingsMenuItems[] = {
         "\\/ Save Settings",
         "Light Source",
         "7SD Brightness",
+        "Buzzer Frequency",
         "AO Function",
         "AO Voltage Limit",
         "AO Voltage Input",
@@ -25,6 +35,7 @@ namespace string_const {
         "AO Coeffs #4",
         "AO Range LOW",
         "AO Range HIGH",
-        "About"
+        "About",
+        "/\\ Reset Settings !!!"
     };
-}
+};

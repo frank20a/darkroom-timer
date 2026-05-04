@@ -25,13 +25,14 @@ enum class PageIndex {
     TIMER,
     FSTOP,
     SETTINGS,
+    SETTINGS_VALUE,
     ABOUT
 };
 
 
 class EPD_Display : public DisplayType {
     public:
-        EPD_Display(int CS, int DC, int RES, int BUSY, SystemState* system_state);
+        EPD_Display(int CS, int DC, int RES, int BUSY, SystemState* system);
         bool init();
         void execute_logic();
         void render();
@@ -39,6 +40,5 @@ class EPD_Display : public DisplayType {
 
     private:
         PageIndex current_page = PageIndex::TEST;
-        std::map<PageIndex, EPD_Page *> pages;
-        SystemState* system_state;
+        SystemState* system;
 };

@@ -18,7 +18,7 @@
 #include "string_const.hpp"
 
 
-void draw_knob(EPD_Display* display, int center_x, int center_y, double value, const char* title = "", bool selected = false, int radius = 30, double angle_range = M_PI * 1.5);
+void draw_knob(EPD_Display* display, int center_x, int center_y, int value, const char* title = "", int min_value = 0, int max_value = 100, bool selected = false, bool off = false, int radius = 30, double angle_range = M_PI * 1.5);
 void draw_scrollbar(EPD_Display* display, int val, int max_val);
 void draw_list(EPD_Display* display, const char** items, int item_count, int selected_index);
 
@@ -29,23 +29,21 @@ class EPD_Page {
             EPD_Page::pages[index] = this;
         };
         void render();
-        void execute_logic() {
-            _header_logic();
-            logic();
-        }
+        void execute_logic();
 
         static std::map<PageIndex, EPD_Page*> pages;
 
     protected:
         virtual void draw() = 0;
-        virtual bool draw_condition() = 0;
         virtual void logic() = 0;
-        virtual void on_switch_to() = 0;
-        
+
+        virtual void on_switch_to() {};     // Runs when switching to this page
+        virtual void on_switch_from() {};   // Runs when switching away from this page
         virtual String get_title() { return String(title.c_str()); }
         void switch_to_page(PageIndex page) {
             display->set_page(page);
             draw_count = -1; // Force full refresh on next render
+            on_switch_from();
         }
 
         static unsigned int counter;
@@ -53,14 +51,17 @@ class EPD_Page {
         EPD_Display* display;
         SystemState* system;
         std::string title;
+        bool draw_flag = true;
         unsigned int draw_count = -1;
         unsigned long int last_draw_time = 0;
         unsigned int partial_x = 0, partial_y = 0, partial_w = EPD_Type::HEIGHT, partial_h = EPD_Type::WIDTH;
 
     private:
-        bool _always_draw_condition();
         void _draw_header();
         void _header_logic();
+        void _menu_selector();
+
+        bool _always_draw_flag = false;
 };
 
 class TestPage : public EPD_Page {
@@ -68,17 +69,46 @@ class TestPage : public EPD_Page {
         TestPage(SystemState* system, EPD_Display* display) : EPD_Page(system, display, PageIndex::TEST, "Test Page") {};
     private:
         void draw() override;
-        bool draw_condition() override;
-        void logic() override {};
-        void on_switch_to() override {};
+        void logic() override;
+};
+
+class TimerPage : public EPD_Page {
+    public:
+        TimerPage(SystemState* system, EPD_Display* display) : EPD_Page(system, display, PageIndex::TIMER, "Timer") {};
+    private:
+        void draw() override;
+        void logic() override;
+        void on_switch_to() override;
+        void on_switch_from() override;
+
+        bool selection_flag = false;
+        bool prev_active_flag = false;
+        float timer_value = 10;
+};
+
+class LampControlPage : public EPD_Page {
+    public:
+        LampControlPage(SystemState* system, EPD_Display* display) : EPD_Page(system, display, PageIndex::LAMP_CONTROL, "Lamp Control") {};
+
+    private:
+        void draw() override;
+        void logic() override;
+        void on_switch_to() override { system->outputs.preview_state = TESTLIGHT_OFF; }
+        void on_switch_from() override { system->outputs.preview_state = TESTLIGHT_OFF; }
 };
 
 class SettingsPage : public EPD_Page {
     public:
-        SettingsPage(SystemState* system, EPD_Display* display) : EPD_Page(system, display, PageIndex::SETTINGS, "Settings") {};
+        SettingsPage(SystemState* system, EPD_Display* display) : EPD_Page(system, display, PageIndex::SETTINGS, "Settings") {
+            partial_x = 50;
+            partial_y = 35;
+            partial_w = EPD_Type::HEIGHT - 55;
+            partial_h = 180;
+        };
         
         enum SettingsMenuItem : uint8_t {
             OPTION_SAVE = 0,
+            OPTION_FSTOP_TABLE,
             OPTION_LIGHT_SOURCE,
             OPTION_SEVEN_SEGMENT_BRIGHTNESS,
             OPTION_BUZZER_FREQUENCY,
@@ -96,28 +126,8 @@ class SettingsPage : public EPD_Page {
         };
     private:
         void draw() override;
-        bool draw_condition() override;
         void logic() override;
-        void on_switch_to() override {
-            selected_menu_item = 0;
-
-            // Print settings
-            Serial.println("Current settings:");
-            Serial.println("Light Source: " + String((int)system->settings.light_source));
-            Serial.println("7SD Brightness: " + String(system->settings.seven_segment_brightness));
-            Serial.println("Buzzer Frequency: " + String(system->settings.buzzer_frequency));
-            Serial.println("AO Function: " + String((int)system->settings.analog_output_function));
-            Serial.println("AO Voltage Limit: " + String(system->settings.analog_output_voltage_limit));
-            Serial.println("AO Voltage Input: " + String(system->settings.analog_input_voltage));
-            Serial.println("AO Coeffs:");
-            for (int i = 0; i < 3; i++) {
-                Serial.println("  Light Source " + String(i) + ": " + String(system->settings.analog_output_coeffs[i][0]) + ", " + String(system->settings.analog_output_coeffs[i][1]) + ", " + String(system->settings.analog_output_coeffs[i][2]) + ", " + String(system->settings.analog_output_coeffs[i][3]));
-            }
-            Serial.println("AO Range:");
-            for (int i = 0; i < 3; i++) {
-                Serial.println("  Light Source " + String(i) + ": " + String(system->settings.analog_output_range[i][0]) + " to " + String(system->settings.analog_output_range[i][1]));
-            }
-        };
+        void on_switch_to() override { selected_menu_item = 0; };
 
         int selected_menu_item = 0;
 };
@@ -129,7 +139,6 @@ class SettingsValuePage : public EPD_Page {
 
     private:
         void draw() override;
-        bool draw_condition() override;
         void logic() override;
         void on_switch_to() override;
         void save_value();
@@ -163,7 +172,18 @@ class AboutPage : public EPD_Page {
 
     private:
         void draw() override;
-        bool draw_condition() override { return false; };
         void logic() override;
-        void on_switch_to() override {};
+};
+
+class TablePage : public EPD_Page {
+    public:
+        TablePage(SystemState* system, EPD_Display* display) : EPD_Page(system, display, PageIndex::TABLE, "F-Stop Table") { };
+
+    private:
+        void draw() override;
+        void logic() override;
+        String get_title() override { return String(title.c_str()) + (diff ? " (Diff)" : " (Value)"); }
+
+        float base_value = 10;
+        bool diff = false;
 };

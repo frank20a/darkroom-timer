@@ -8,15 +8,9 @@ Application app;
 void setup() {
     // Initialize Serial
     Serial.begin(115200);
-    delay(2000);
+    delay(200);
 
-    // Initialize SPI
-    SPI.setRX(MISO_PIN);
-    SPI.setTX(MOSI_PIN);
-    SPI.setSCK(SCK_PIN);
-    SPI.begin();
-
-    // // Initialize application
+    // Initialize application
     if(!app.begin()) {
         Serial.println("Failed to initialize application.");
         while(1);
@@ -26,6 +20,4 @@ void setup() {
 
 void loop() {
     app.mainloop_step();
-    // Serial.println("Hello, world!");
-    // delay(1000);
 }

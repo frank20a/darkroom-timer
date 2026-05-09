@@ -19,7 +19,7 @@ enum DigitalInputs : uint8_t {
     SW1_POS0,
     SW1_POS1,
     SW1_POS2,
-    START_BTN,
+    EXPOSE_BTN,
     INPUT_15
 };
 

@@ -3,12 +3,16 @@
 
 
 unsigned int EPD_Page::counter = 0;
-const epd_image_t *sidebar_icons[3] = {&Assets::light, &Assets::calculator, &Assets::gear};
+const epd_image_t *sidebar_icons[3] = {&Assets::clock, &Assets::calculator, &Assets::light};
 std::map<PageIndex, EPD_Page*> EPD_Page::pages;
 
 
+const uint8_t TimerTemplate::f_steps[FSTOP_NUM_SELECTIONS] = {12, 6, 4, 3, 2, 1};
+const float TimerTemplate::t_steps[TIMER_NUM_SELECTIONS] = {0.25, 0.5, 1, 2.5, 5, 10};
+
+
 void EPD_Page::render() {
-    if (_always_draw_condition() || draw_condition()) {
+    if (draw_flag || _always_draw_flag) {
         if (draw_count > FULL_REFRESH_THRESH) {
             display->setFullWindow();
 
@@ -25,6 +29,14 @@ void EPD_Page::render() {
             draw();
         } while (display->nextPage());
     }
+
+    draw_flag = false;
+    _always_draw_flag = false;
+}
+
+void EPD_Page::execute_logic() {
+    _header_logic();
+    logic();
 }
 
 void EPD_Page::_draw_header() {
@@ -50,101 +62,330 @@ void EPD_Page::_draw_header() {
     display->print(get_title().c_str());
 }
 
-bool EPD_Page::_always_draw_condition() {
+void EPD_Page::_header_logic() {
     if (draw_count == -1){
         on_switch_to();
-        return true;
+        _always_draw_flag = true;
     }
 
-    for (const auto& event : system->inputs.events) {
+   for (const auto& event : system->inputs.events) {
         if (event.type == SWITCH_CHANGE && event.long_value == 1) {
+            _menu_selector();
+
             partial_x = 0;
             partial_y = 0;
             partial_w = 40;
             partial_h = EPD_Type::WIDTH;
-            return true;
-        }
-    }
-    return false;
+            _always_draw_flag = true;
+
+            return;
+        } else if (event.long_value == BACK_BTN) {
+            if (event.type == DIGITAL_INPUT_LONG) {
+                switch_to_page(PageIndex::SETTINGS);
+                return;
+            } else if (event.type == DIGITAL_INPUT_RISE && display->get_current_page() == PageIndex::SETTINGS) {
+                _menu_selector();
+                return;
+            }
+        } 
+   }
 }
 
-void EPD_Page::_header_logic() {
-   for (const auto& event : system->inputs.events) {
-        if (event.type == SWITCH_CHANGE && event.long_value == 1) {
-            switch (system->inputs.switch_states[1]) {
-                case 0:
-                    switch_to_page(PageIndex::TEST);
-                    break;
-                case 1:
-                    switch_to_page(PageIndex::TEST);
-                    break;
-                case 2:
-
-                    switch_to_page(PageIndex::SETTINGS);
-                    break;
-            }
-        }
-   }
+void EPD_Page::_menu_selector() {
+    switch (system->inputs.switch_states[1]) {
+        case 0:
+            switch_to_page(PageIndex::TIMER);
+            break;
+        case 1:
+            switch_to_page(PageIndex::TEST);
+            break;
+        case 2:
+            switch_to_page(PageIndex::LAMP_CONTROL);
+            break;
+    }
 }
 
 
 void TestPage::draw() {
-    draw_knob(display, 156, 200, (double)(system->inputs.encoder_data.encoder_value / 100.0), "Cyan");
-    draw_knob(display, 260, 200, (double)(system->inputs.encoder_data.encoder_value / 100.0), "Magenta", true);
-    draw_knob(display, 364, 200, (double)(system->inputs.encoder_data.encoder_value / 100.0), "Yellow");
+    draw_knob(display, 100, 175, system->inputs.encoder_data.encoder_value, "TEST", -50, 50);
+    draw_knob(display, 235, 175, system->inputs.encoder_data.encoder_value, "test", 0, 100, true);
+    draw_knob(display, 360, 175, system->inputs.encoder_data.encoder_value, "TesT", 0, 200, false, 40, M_PI);
 }
 
-bool TestPage::draw_condition() {
+void TestPage::logic() {
     for (const auto& event : system->inputs.events) {
         if (event.type == ENCODER_CHANGE) {
-            partial_x = 115;
-            partial_y = 170;
-            partial_w = 300;
-            partial_h = 80;
-            return true;
+            partial_x = 40;
+            partial_y = 85;
+            partial_w = EPD_Type::HEIGHT - 40;
+            partial_h = EPD_Type::WIDTH - 100;
+            draw_flag = true;
         }
     }
-    return false;
+}
+
+
+void TimerPage::draw() {
+    const epd_image_t* timer_icons[4] = {&Assets::big_check, &Assets::big_time, &Assets::big_lamp_off, &Assets::big_lamp_on};
+    const char* timer_labels[3] = {"f-stop", "normal", "toggle"};
+
+    constexpr int sidebar_width = 40;
+    constexpr int selector_slots = 3;
+    const int selector_region_w = EPD_Type::HEIGHT - sidebar_width;
+    const int slot_w = selector_region_w / selector_slots;
+    const int icon_y = EPD_Type::WIDTH - 58;
+    const int label_y = icon_y - 22;
+
+    for (uint8_t i = 0; i < 3; i++) {
+        const bool selected = system->inputs.switch_states[0] == i;
+        const int slot_x = sidebar_width + i * slot_w;
+        const epd_image_t* icon = timer_icons[i == 2 && system->outputs.exposure_active_flag ? 3 : i];
+
+        if (selected) {
+            const int bg_x = slot_x + 8;
+            const int bg_y = label_y - 8;
+            const int bg_w = slot_w - 16;
+            const int bg_h = (icon_y + (int)icon->height + 6) - bg_y;
+            display->fillRoundRect(bg_x, bg_y, bg_w, bg_h, 8, GxEPD_BLACK);
+        }
+
+        display->setTextSize(2);
+        display->setTextColor(selected ? GxEPD_WHITE : GxEPD_BLACK);
+
+        int16_t label_x1, label_y1;
+        uint16_t label_w, label_h;
+        display->getTextBounds(timer_labels[i], 0, 0, &label_x1, &label_y1, &label_w, &label_h);
+        const int label_x = slot_x + (slot_w - (int)label_w) / 2 - label_x1;
+        display->setCursor(label_x, label_y);
+        display->print(timer_labels[i]);
+
+        const int icon_x = slot_x + (slot_w - (int)icon->width) / 2;
+        display->drawBitmap(icon_x, icon_y, icon->data, icon->width, icon->height, selected ? GxEPD_WHITE : GxEPD_BLACK);
+    }
+
+    const int text_x = 55;
+    const int text_y = 55;
+    display->setTextSize(2);
+    display->setCursor(text_x, text_y);
+    if (system->inputs.switch_states[0] < 2) {
+        char* suffix;
+        char step_buf[10];
+        const char* prefix = "time step: ";
+        if (system->inputs.switch_states[0] == 0){
+            suffix = " stop";
+            snprintf(step_buf, sizeof(step_buf), "1/%d", (int)TimerTemplate::f_steps[system->timer_setpoint.f_step_index]);
+        } else if (system->inputs.switch_states[0] == 1) {
+            suffix = " sec";
+            snprintf(step_buf, sizeof(step_buf), "%.2f", TimerTemplate::t_steps[system->timer_setpoint.t_step_index]);
+        }
+
+        display->setTextColor(GxEPD_BLACK);
+        display->print(prefix);
+
+        int16_t x1, y1;
+        uint16_t w, h;
+
+        display->getTextBounds(prefix, 0, 0, &x1, &y1, &w, &h);
+        const int step_text_x = text_x + (int)w;
+
+        int16_t step_x1, step_y1;
+        uint16_t step_w, step_h;
+        display->getTextBounds(step_buf, step_text_x, text_y, &step_x1, &step_y1, &step_w, &step_h);
+
+        if (selection_flag) {
+            constexpr int pad_x = 4;
+            constexpr int pad_y = 2;
+            constexpr int corner_radius = 4;
+            display->fillRoundRect(
+                step_x1 - pad_x,
+                step_y1 - pad_y,
+                step_w + 2 * pad_x,
+                step_h + 2 * pad_y,
+                corner_radius,
+                GxEPD_BLACK
+            );
+            display->setTextColor(GxEPD_WHITE);
+        }
+
+        display->setCursor(step_text_x, text_y);
+        display->print(step_buf);
+
+        display->setTextColor(GxEPD_BLACK);
+        display->setCursor(step_text_x + (int)step_w, text_y);
+        display->print(suffix);
+    } else {
+        display->setTextColor(GxEPD_BLACK);
+        display->print("toggle lamp on/off");
+    }
+
+}
+
+void TimerPage::logic() {
+    partial_x = 40;
+    partial_y = 25;
+    partial_w = EPD_Type::HEIGHT - 40;  
+        
+    bool ssd_update_needed = false;
+
+    for (const auto& event : system->inputs.events) {
+        if (event.type == ENCODER_CHANGE) {
+            if (system->inputs.switch_states[0] >= 2)
+                continue;
+
+            if (selection_flag) {
+                partial_h = 60;
+                draw_flag = true;
+
+                if (system->inputs.switch_states[0] == 0)
+                    system->timer_setpoint.f_step_index = max(min(system->timer_setpoint.f_step_index + event.long_value, (uint8_t)(FSTOP_NUM_SELECTIONS - 1)), (uint8_t)0);
+                else if (system->inputs.switch_states[0] == 1)
+                    system->timer_setpoint.t_step_index = max(min(system->timer_setpoint.t_step_index + event.long_value, (uint8_t)(TIMER_NUM_SELECTIONS - 1)), (uint8_t)0);
+            } else {
+                if (system->inputs.switch_states[0] == 0)
+                    timer_value *= pow(2.0, (double)event.long_value / (double)TimerTemplate::f_steps[system->timer_setpoint.f_step_index]);
+                else if (system->inputs.switch_states[0] == 1)
+                    timer_value += event.long_value * TimerTemplate::t_steps[system->timer_setpoint.t_step_index];
+                ssd_update_needed = true;
+            }
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == ENCODER_BTN) {
+            partial_h = 60;
+            draw_flag = true;
+            
+            selection_flag = !selection_flag;
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == EXPOSE_BTN) {
+            if (system->outputs.exposure_active_flag)
+                system->outputs.events.push_back({OutputType::STOP_EXPOSURE, {}});
+            else
+                if (system->inputs.switch_states[0] < 2)
+                    system->outputs.events.push_back({OutputType::START_TIMED_EXPOSURE, {.doubleValue = timer_value}});
+                else 
+                    system->outputs.events.push_back({OutputType::START_INFINITE_EXPOSURE, {}});
+
+            if (system->inputs.switch_states[0] == 2) {
+                partial_x = 2*EPD_Type::HEIGHT/3;
+                partial_y = 150;
+                partial_w = EPD_Type::HEIGHT/3;
+                partial_h = EPD_Type::WIDTH - 25;
+                draw_flag = true;
+            }
+        } else if (event.type == SWITCH_CHANGE && event.long_value == 0) {
+            selection_flag = false;
+
+            system->outputs.events.push_back({OutputType::STOP_EXPOSURE, {}});
+
+            if (system->inputs.switch_states[0] == 2) {
+                system->outputs.exposure_beeper_flag = true;
+                system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_INT, {.intValue = 0}});
+            } else {
+                system->outputs.exposure_beeper_flag = false;
+                ssd_update_needed = true;
+            }            
+            
+            partial_h = EPD_Type::WIDTH - 25;
+            draw_flag = true;
+        }
+    }
+
+    if (ssd_update_needed || (prev_active_flag && !system->outputs.exposure_active_flag)) {
+        if (system->inputs.switch_states[0] < 2)
+            system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = timer_value}});\
+        else
+            system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = 0}});
+    }
+
+    prev_active_flag = system->outputs.exposure_active_flag;
+}
+
+void TimerPage::on_switch_to() {
+    if (system->inputs.switch_states[0] < 2) {
+        system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = timer_value}});
+    } else {
+        system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = 0}});
+        system->outputs.exposure_beeper_flag = true;
+    }
+}
+
+void TimerPage::on_switch_from() {
+    system->outputs.events.push_back({OutputType::SSD_CLEAR, {}});
+    system->outputs.exposure_beeper_flag = false; // Set beeper flag based on switch state when switching to page
+}
+
+
+void LampControlPage::draw() {
+    display->setTextColor(GxEPD_BLACK);
+    display->setTextSize(2);
+    display->setCursor(75, 50);
+    int16_t tbx, tby; uint16_t tbw, tbh;
+    display->getTextBounds("Light Source", 75, 50, &tbx, &tby, &tbw, &tbh);
+    display->drawLine(tbx - 5, tby + tbh + 5, tbx + tbw + 5, tby + tbh + 5, GxEPD_BLACK);
+    display->print("Light Source: " + String(string_const::preview_states[system->outputs.preview_state]));
+
+    switch (system->settings.light_source) {
+        case LightSourceType::TRIPLE_ANALOG:
+            for (uint8_t i = 0; i < 3; i++)
+                draw_knob(display, 100 + 130 * i, 175, 
+                    system->timer_setpoint.color_setpoints[i],
+                    string_const::cmyk_labels[i],
+                    system->settings.analog_output_range[i][0],
+                    system->settings.analog_output_range[i][1],
+                    system->inputs.switch_states[0] == i,
+                    system->timer_setpoint.color_enabled[0]
+                );
+            break;
+        case LightSourceType::SINGLE_ANALOG:
+            draw_knob(display, EPD_Type::HEIGHT/2 + 40, 175,
+                system->timer_setpoint.color_setpoints[0],
+                "Brightness",
+                system->settings.analog_output_range[0][0],
+                system->settings.analog_output_range[0][1],
+                true,
+                system->timer_setpoint.color_enabled[0]
+            );
+            break;
+        default:
+            // No light source, draw nothing
+            break;
+    }
+}
+
+void LampControlPage::logic() {
+    partial_x = 40;
+    partial_y = 20;
+    partial_w = EPD_Type::HEIGHT - 40;
+
+    for (const auto& event : system->inputs.events) {
+        if (event.type == ENCODER_CHANGE) {
+            if (system->settings.light_source == LightSourceType::TRIPLE_ANALOG) {
+                system->timer_setpoint.color_setpoints[system->inputs.switch_states[0]] = max(min(system->timer_setpoint.color_setpoints[system->inputs.switch_states[0]] + event.long_value * 5, system->settings.analog_output_range[system->inputs.switch_states[0]][1]), system->settings.analog_output_range[system->inputs.switch_states[0]][0]);
+            } else if (system->settings.light_source == LightSourceType::SINGLE_ANALOG) {
+                for (uint8_t i = 0; i < 3; i++)
+                    system->timer_setpoint.color_setpoints[i] = max(min(system->timer_setpoint.color_setpoints[i] + event.long_value * 5, system->settings.analog_output_range[i][1]), system->settings.analog_output_range[i][0]);
+            }
+
+            draw_flag = true; // Update display immediately to show change in setpoint
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == EXPOSE_BTN) {
+            system->outputs.preview_state = (system->outputs.preview_state + 1) % 3; // Cycle through test light states on each press
+            
+            draw_flag = true; // Update display immediately to show change in preview state
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == ENCODER_BTN) {
+            if (system->settings.light_source == LightSourceType::TRIPLE_ANALOG) {
+                system->timer_setpoint.color_enabled[system->inputs.switch_states[0]] = !system->timer_setpoint.color_enabled[system->inputs.switch_states[0]];
+            } else if (system->settings.light_source == LightSourceType::SINGLE_ANALOG) {
+                for (uint8_t i = 0; i < 3; i++)
+                    system->timer_setpoint.color_enabled[i] = !system->timer_setpoint.color_enabled[i];
+            }
+
+            draw_flag = true; // Update display immediately to show change in enabled state
+        } else if (event.type == SWITCH_CHANGE && event.long_value == 0) {
+            draw_flag = true; // Turn off preview light when switching away from lamp control page
+        }
+        
+    }
 }
 
 
 void SettingsPage::draw() {
-    // int start = min(max(0, selected_menu_item - 3), NUM_SETTINGS_MENU_ITEMS - 6);
-    // for (int i = start; i < start + 6; i++) {
-
-    //     bool selected = (i == selected_menu_item);
-
-    //     display->setTextColor(selected ? GxEPD_WHITE : GxEPD_BLACK);
-    //     if (selected)
-    //         display->fillRect(50, 35 + (i - start) * 30, EPD_Type::HEIGHT - 100, 35, GxEPD_BLACK);
-    //     display->setTextSize(2);
-    //     display->setCursor(60, 45 + (i - start) * 30);
-    //     display->print(string_const::SettingsMenuItems[i]);
-    // }
-
-    // draw_scrollbar(display, selected_menu_item, NUM_SETTINGS_MENU_ITEMS);
-
     draw_list(display, string_const::SettingsMenuItems, NUM_SETTINGS_MENU_ITEMS, selected_menu_item);
-}
-
-bool SettingsPage::draw_condition() {
-    bool ret = false;
-
-    for (const auto& event : system->inputs.events) {
-        if (event.type == ENCODER_CHANGE) {
-            ret = true;
-            break;
-        }
-    }
-
-    if (ret) {
-        partial_x = 50;
-        partial_y = 35;
-        partial_w = EPD_Type::HEIGHT - 55;
-        partial_h = 180;
-    }
-
-    return ret;
 }
 
 void SettingsPage::logic() {
@@ -153,13 +394,16 @@ void SettingsPage::logic() {
             switch (selected_menu_item) {
                 case OPTION_SAVE:
                     system->settings.magic_number = 0xDEADBEEF; // Ensure settings are valid
-                    system->outputs.push_back({OutputType::SAVE_SETTINGS, {}});
+                    system->outputs.events.push_back({OutputType::SAVE_SETTINGS, {}});
+                    break;
+                case OPTION_FSTOP_TABLE:
+                    switch_to_page(PageIndex::TABLE);
                     break;
                 case OPTION_ABOUT:
                     switch_to_page(PageIndex::ABOUT);
                     break;
                 case OPTION_RESET_SETTINGS:
-                    system->outputs.push_back({OutputType::RESET_SETTINGS, {}});
+                    system->outputs.events.push_back({OutputType::RESET_SETTINGS, {}});
                     break;
                 default:
                     static_cast<SettingsValuePage*>(EPD_Page::pages[PageIndex::SETTINGS_VALUE])->set_parameters((SettingsMenuItem)selected_menu_item);
@@ -169,6 +413,8 @@ void SettingsPage::logic() {
         } else if (event.type == ENCODER_CHANGE) {
             selected_menu_item += event.long_value;
             selected_menu_item = min(max(0, selected_menu_item), NUM_SETTINGS_MENU_ITEMS - 1);
+
+            draw_flag = true; // Update display immediately to show change in selection
         }
     }
 }
@@ -226,32 +472,8 @@ void SettingsValuePage::draw() {
 
     if (menu_item == SettingsPage::OPTION_BUZZER_FREQUENCY) {
         system->settings.buzzer_frequency = (unsigned int)numeric_values[0];
-        system->outputs.push_back({OutputType::BUZZER_BEEP, {}});
+        system->outputs.events.push_back({OutputType::BUZZER_BEEP_LONG, {}});
     }
-}
-
-bool SettingsValuePage::draw_condition() {
-    bool ret = false;
-
-    for (const auto& event : system->inputs.events) {
-        if (event.type == ENCODER_CHANGE || (event.type == SWITCH_CHANGE && event.long_value == 0)) {
-            if (edit_mode == NUMERIC_SINGLE) {
-                partial_x = 50;
-                partial_y = 25;
-                partial_w = EPD_Type::HEIGHT - 60;
-                partial_h = (int)(EPD_Type::WIDTH / 3);
-            } else {
-                partial_x = 40;
-                partial_y = 25;
-                partial_w = EPD_Type::HEIGHT - 40;
-                partial_h = EPD_Type::WIDTH - 25;
-            }
-
-            return true;
-        }
-    }
-
-    return false;
 }
 
 void SettingsValuePage::logic() {
@@ -261,16 +483,36 @@ void SettingsValuePage::logic() {
         if (event.type == ENCODER_CHANGE) {
             numeric_values[multi_index] += event.long_value * numeric_step * numeric_multiplier;
             numeric_values[multi_index] = min(max(numeric_min * numeric_multiplier, numeric_values[multi_index]), numeric_max * numeric_multiplier);
+        
+            draw_flag = true; // Update display immediately to show change in value
         } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == ENCODER_BTN) {
             save_value();
             if (menu_item == SettingsPage::OPTION_SEVEN_SEGMENT_BRIGHTNESS)
-                system->outputs.push_back({OutputType::SSD_CLEAR, {}});
+                system->outputs.events.push_back({OutputType::SSD_CLEAR, {}});
             switch_to_page(PageIndex::SETTINGS);
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == BACK_BTN) {
+            switch_to_page(PageIndex::SETTINGS);
+        } else if (event.type == SWITCH_CHANGE && event.long_value == 0) {
+            draw_flag = true; // Update display immediately to show change in selection
+        }
+    }
+
+    if (draw_flag) {
+        if (edit_mode == NUMERIC_SINGLE) {
+            partial_x = 50;
+            partial_y = 25;
+            partial_w = EPD_Type::HEIGHT - 60;
+            partial_h = (int)(EPD_Type::WIDTH / 3);
+        } else {
+            partial_x = 40;
+            partial_y = 25;
+            partial_w = EPD_Type::HEIGHT - 40;
+            partial_h = EPD_Type::WIDTH - 25;
         }
     }
     
     if (menu_item == SettingsPage::OPTION_SEVEN_SEGMENT_BRIGHTNESS)
-        system->outputs.push_back({OutputType::SSD_SET_BRIGHTNESS, {.intValue=(uint8_t)numeric_values[0]}});
+        system->outputs.events.push_back({OutputType::SSD_SET_BRIGHTNESS, {.intValue=(uint8_t)numeric_values[0]}});
 
 }
 
@@ -295,7 +537,7 @@ void SettingsValuePage::on_switch_to() {
             numeric_min = 0x00;
             numeric_max = 0x0F;
             numeric_values[0] = system->settings.seven_segment_brightness;
-            system->outputs.push_back({OutputType::SSD_SET_NUMBER_INT, {.intValue=8888}});
+            system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_INT, {.intValue=8888}});
             break;
         case SettingsPage::OPTION_BUZZER_FREQUENCY:
             edit_mode = NUMERIC_SINGLE;
@@ -340,22 +582,49 @@ void SettingsValuePage::on_switch_to() {
         case SettingsPage::OPTION_AO_COEFFS_4:
             break;
         case SettingsPage::OPTION_AO_RANGE_LOW:
-            edit_mode = NUMERIC_MULTI;
             numeric_min = -500;
             numeric_max = 500;
             numeric_step = 10;
-            numeric_values[0] = system->settings.analog_output_range[0][0];
-            numeric_values[1] = system->settings.analog_output_range[1][0];
-            numeric_values[2] = system->settings.analog_output_range[2][0];
+            if (system->settings.light_source == LightSourceType::SINGLE_ANALOG) {
+                edit_mode = NUMERIC_SINGLE;
+                numeric_values[0] = system->settings.analog_output_range[0][0];
+                system->settings.analog_output_range[1][0] = system->settings.analog_output_range[0][0];
+                system->settings.analog_output_range[2][0] = system->settings.analog_output_range[0][0];
+            } else if (system->settings.light_source == LightSourceType::TRIPLE_ANALOG) {
+                edit_mode = NUMERIC_MULTI;
+                numeric_values[0] = system->settings.analog_output_range[0][0];
+                numeric_values[1] = system->settings.analog_output_range[1][0];
+                numeric_values[2] = system->settings.analog_output_range[2][0];
+            } else {
+                edit_mode = NUMERIC_SINGLE;
+                numeric_min = 0;
+                numeric_max = 0;
+                numeric_values[0] = 0;
+            }
             break;
         case SettingsPage::OPTION_AO_RANGE_HIGH:
-            edit_mode = NUMERIC_MULTI;
             numeric_min = -500;
             numeric_max = 500;
             numeric_step = 10;
-            numeric_values[0] = system->settings.analog_output_range[0][1];
-            numeric_values[1] = system->settings.analog_output_range[1][1];
-            numeric_values[2] = system->settings.analog_output_range[2][1];
+            if (system->settings.light_source == LightSourceType::SINGLE_ANALOG) {
+                edit_mode = NUMERIC_SINGLE;
+                numeric_values[0] = system->settings.analog_output_range[0][1];
+                system->settings.analog_output_range[1][1] = system->settings.analog_output_range[0][1];
+                system->settings.analog_output_range[2][1] = system->settings.analog_output_range[0][1];
+            } else if (system->settings.light_source == LightSourceType::TRIPLE_ANALOG) {
+                edit_mode = NUMERIC_MULTI;
+                numeric_values[0] = system->settings.analog_output_range[0][1];
+                numeric_values[1] = system->settings.analog_output_range[1][1];
+                numeric_values[2] = system->settings.analog_output_range[2][1];
+            } else {
+                edit_mode = NUMERIC_SINGLE;
+                numeric_min = 0;
+                numeric_max = 0;
+                numeric_values[0] = 0;
+            }
+            break;
+        default:
+            switch_to_page(PageIndex::SETTINGS);
             break;
     }
 
@@ -366,6 +635,14 @@ void SettingsValuePage::save_value() {
     switch (menu_item) {
         case SettingsPage::OPTION_LIGHT_SOURCE:
             system->settings.light_source = (LightSourceType)(int)numeric_values[0];
+            if (system->settings.light_source == LightSourceType::SINGLE_ANALOG) {
+                for (int i = 1; i < 3; i++) {
+                    system->settings.analog_output_range[i][0] = system->settings.analog_output_range[0][0];
+                    system->settings.analog_output_range[i][1] = system->settings.analog_output_range[0][1];
+                    system->timer_setpoint.color_setpoints[i] = system->timer_setpoint.color_setpoints[0];
+                    system->timer_setpoint.color_enabled[i] = true;
+                }
+            }
             break;
         case SettingsPage::OPTION_SEVEN_SEGMENT_BRIGHTNESS:
             system->settings.seven_segment_brightness = (uint8_t)numeric_values[0];
@@ -383,13 +660,27 @@ void SettingsValuePage::save_value() {
             system->settings.analog_input_voltage = numeric_values[0];
             break;
         case SettingsPage::OPTION_AO_RANGE_LOW:
-            for (int i = 0; i < 3; i++) {
-                system->settings.analog_output_range[i][0] = numeric_values[i];
+            if(system->settings.light_source == LightSourceType::SINGLE_ANALOG) {
+                for (int i = 0; i < 3; i++)
+                    system->settings.analog_output_range[i][1] = numeric_values[0];
+            } else if (system->settings.light_source == LightSourceType::TRIPLE_ANALOG) {
+                for (int i = 0; i < 3; i++)
+                    system->settings.analog_output_range[i][0] = numeric_values[i];
+            } else {
+                for (int i = 0; i < 3; i++)
+                    system->settings.analog_output_range[i][0] = 0;
             }
             break;
         case SettingsPage::OPTION_AO_RANGE_HIGH:
-            for (int i = 0; i < 3; i++) {
-                system->settings.analog_output_range[i][1] = numeric_values[i];
+            if(system->settings.light_source == LightSourceType::SINGLE_ANALOG) {
+                for (int i = 0; i < 3; i++)
+                    system->settings.analog_output_range[i][1] = numeric_values[0];
+            } else if (system->settings.light_source == LightSourceType::TRIPLE_ANALOG) {
+                for (int i = 0; i < 3; i++)
+                    system->settings.analog_output_range[i][1] = numeric_values[i];
+            } else {
+                for (int i = 0; i < 3; i++)
+                    system->settings.analog_output_range[i][1] = 0;
             }
             break;
     }
@@ -417,20 +708,147 @@ void AboutPage::draw() {
 
 void AboutPage::logic() {
     for (const auto& event : system->inputs.events) {
-        if (event.type == DIGITAL_INPUT_RISE && event.long_value == ENCODER_BTN) {
+        if (event.type == DIGITAL_INPUT_RISE && (event.long_value == ENCODER_BTN || event.long_value == BACK_BTN)) {
             switch_to_page(PageIndex::SETTINGS);
         }
     }
 }
 
 
-void draw_knob(EPD_Display* display, int center_x, int center_y, double value, const char* title, bool selected, int radius, double angle_range) {
-    if (value < 0.0 || value > 1.0) return; // Ensure value is between 0 and 1
+void TablePage::draw() {
+    const int table_x = 50;
+    const int table_y = 35;
+    const int row_headers_count = 7;
+    const int row_headers[row_headers_count] = {-3, -2, -1, 0, 1, 2, 3};
+
+    const int col_headers_count = 7;
+    const float col_headers[col_headers_count] = {0.0f, 1.0f / 6.0f, 1.0f / 4.0f, 1.0f / 3.0f, 1.0f / 2.0f, 2.0f / 3.0f, 3.0f / 4.0f};
+
+    const int table_cols = col_headers_count + 1;
+    const int table_rows = row_headers_count + 1;
+    const int table_w = EPD_Type::HEIGHT - table_x - 10;
+    const int table_h = EPD_Type::WIDTH - table_y - 10;
+    const int cell_w = table_w / table_cols;
+    const int cell_h = table_h / table_rows;
+
+    display->setTextColor(GxEPD_BLACK);
+    display->drawRect(table_x, table_y, cell_w * table_cols, cell_h * table_rows, GxEPD_BLACK);
+
+    for (int c = 1; c < table_cols; c++) {
+        const int x = table_x + c * cell_w;
+        display->drawLine(x, table_y, x, table_y + cell_h * table_rows, GxEPD_BLACK);
+    }
+    for (int r = 1; r < table_rows; r++) {
+        const int y = table_y + r * cell_h;
+        display->drawLine(table_x, y, table_x + cell_w * table_cols, y, GxEPD_BLACK);
+    }
+
+    display->setTextSize(2);
+    for (int c = 0; c < col_headers_count; c++) {
+        int16_t x1, y1;
+        uint16_t w, h;
+        display->getTextBounds(string_const::table_labels[c], 0, 0, &x1, &y1, &w, &h);
+
+        const int cell_x = table_x + (c + 1) * cell_w;
+        const int cell_y = table_y;
+        const int text_x = cell_x + (cell_w - (int)w) / 2 - x1;
+        const int text_y = cell_y + (cell_h - (int)h) / 2 - y1;
+
+        // Double-print with one-pixel offset as a simple bold effect.
+        display->setCursor(text_x, text_y);
+        display->print(string_const::table_labels[c]);
+        display->setCursor(text_x + 1, text_y);
+        display->print(string_const::table_labels[c]);
+    }
+
+    display->setTextSize(2);
+    for (int r = 0; r < row_headers_count; r++) {
+        char header_buf[6];
+        snprintf(header_buf, sizeof(header_buf), "%d", row_headers[r]);
+
+        int16_t x1, y1;
+        uint16_t w, h;
+        display->getTextBounds(header_buf, 0, 0, &x1, &y1, &w, &h);
+
+        const int cell_x = table_x;
+        const int cell_y = table_y + (r + 1) * cell_h;
+        const int text_x = cell_x + (cell_w - (int)w) / 2 - x1;
+        const int text_y = cell_y + (cell_h - (int)h) / 2 - y1;
+
+        // Double-print with one-pixel offset as a simple bold effect.
+        display->setCursor(text_x, text_y);
+        display->print(header_buf);
+        display->setCursor(text_x + 1, text_y);
+        display->print(header_buf);
+    }
+
+    display->setTextSize(1);
+    for (int r = 0; r < row_headers_count; r++) {
+        for (int c = 0; c < col_headers_count; c++) {
+            const float exponent = (float)row_headers[r] + col_headers[c];
+            const float value = base_value * powf(2.0f, exponent);
+            const float shown = diff ? (value - base_value) : value;
+            const bool is_base_cell = (row_headers[r] == 0 && col_headers[c] == 0.0f);
+
+            char value_buf[16];
+            const float abs_val = fabsf(shown);
+            if (abs_val >= 100.0f) {
+                dtostrf(shown, 0, 0, value_buf);
+            } else if (abs_val >= 10.0f) {
+                dtostrf(shown, 0, 1, value_buf);
+            } else {
+                dtostrf(shown, 0, 2, value_buf);
+            }
+
+            int16_t x1, y1;
+            uint16_t w, h;
+            display->getTextBounds(value_buf, 0, 0, &x1, &y1, &w, &h);
+
+            const int cell_x = table_x + (c + 1) * cell_w;
+            const int cell_y = table_y + (r + 1) * cell_h;
+            const int text_x = cell_x + (cell_w - (int)w) / 2 - x1;
+            const int text_y = cell_y + (cell_h - (int)h) / 2 - y1;
+
+            if (is_base_cell) {
+                display->fillRect(cell_x + 1, cell_y + 1, cell_w - 1, cell_h - 1, GxEPD_BLACK);
+                display->setTextColor(GxEPD_WHITE);
+            } else {
+                display->setTextColor(GxEPD_BLACK);
+            }
+
+            display->setCursor(text_x, text_y);
+            display->print(value_buf);
+        }
+    }
+
+    display->setTextColor(GxEPD_BLACK);
+}
+
+void TablePage::logic() {
+    for (const auto& event : system->inputs.events) {
+        if (event.type == DIGITAL_INPUT_RISE && event.long_value == BACK_BTN) {
+            switch_to_page(PageIndex::SETTINGS);
+        } else if (event.type == ENCODER_CHANGE) {
+            base_value = max(1, base_value + event.long_value);
+
+            draw_flag = true; // Update display immediately to show change in base value
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == ENCODER_BTN) {
+            diff = !diff;
+            draw_flag = true; // Update display immediately to show change in diff mode
+        }
+    }
+}
+
+
+void draw_knob(EPD_Display* display, int center_x, int center_y, int value, const char* title, int min_value, int max_value, bool selected, bool off, int radius, double angle_range) {
+    float _value = (value - min_value) / (float)(max_value - min_value);
+    
+    if (_value < 0.0 || _value > 1.0) return; // Ensure _value is between 0 and 1
     if (angle_range < M_PI || angle_range > 2 * M_PI) return; // Ensure angle range is between 180 and 360 degrees
 
     // Calculate start and end angles for the knob
-    double start_angle = (M_PI + angle_range) / 2.0;
-    double end_angle = start_angle - value * angle_range;
+    float start_angle = (M_PI + angle_range) / 2.0;
+    float end_angle = start_angle - _value * angle_range;
     if (end_angle < 0) end_angle += 2 * M_PI;
 
     start_angle = M_PI * 5.0 / 4.0;
@@ -517,23 +935,33 @@ void draw_knob(EPD_Display* display, int center_x, int center_y, double value, c
     display->drawLine(center_x, center_y, center_x + radius * 0.65 * cos(end_angle - 0.02), center_y - radius * 0.65 * sin(end_angle - 0.02), GxEPD_BLACK);
 
     // Print value
-    int show_val = (int)(value * 100);
-    int text_offset;
-    if (show_val < 10) text_offset = 6;
-    else if (show_val < 100) text_offset = 12;
-    else text_offset = 18;
-    display->setTextColor(GxEPD_BLACK);
-    display->setCursor(center_x - text_offset, center_y + radius * 0.65);
+    char value_buf[16];
+    dtostrf(value, 0, 0, value_buf);
+
     display->setTextSize(2);
-    display->print((int)(value * 100));
+    int16_t value_x1, value_y1;
+    uint16_t value_w, value_h;
+    display->getTextBounds(value_buf, 0, 0, &value_x1, &value_y1, &value_w, &value_h);
+
+    const int value_center_y = center_y + (int)(radius);
+    const int value_text_x = center_x - ((int)value_w / 2) - value_x1;
+    const int value_text_y = value_center_y - ((int)value_h / 2) - value_y1;
+
+    display->setTextColor(GxEPD_BLACK);
+    display->setCursor(value_text_x, value_text_y);
+    display->print(value_buf);
     
     // Print title
     int16_t tbx, tby; uint16_t tbw, tbh;
-    display->setTextSize(1);
     display->getTextBounds(title, 0, 0, &tbx, &tby, &tbw, &tbh);
-    display->setCursor(center_x - tbw / 2, center_y - radius * 1.05 - tbh);
+    if (!selected) {
+        display->setTextColor(GxEPD_BLACK);
+    } else {
+        display->setTextColor(GxEPD_WHITE);
+        display->fillRoundRect(center_x - tbw / 2 - 5, center_y - radius * 1.15 - tbh - 5, tbw + 10, tbh + 10, 5, GxEPD_BLACK);
+    }
+    display->setCursor(center_x - tbw / 2, center_y - radius * 1.15 - tbh);
     display->print(title);
-        
 }
 
 void draw_scrollbar(EPD_Display* display, int val, int max_val) {

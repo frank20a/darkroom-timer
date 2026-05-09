@@ -79,12 +79,18 @@ void SSD::setNumber(float number, bool full_decimal) {
     } else {
         if (number > 999.9 || number < -99.9) return; // Number too large for 4 digits with 1 decimal point
 
-        intNumber = (int)(number * 10);
+        intNumber = (int)(round(number * 10));
         decimalPoints = 1;
     }
     
     uint8_t digits[4];
     getDigits(intNumber, digits);
+
+    // Keep a leading zero for fractional values, e.g. show 0.9 instead of .9
+    if (decimalPoints > 0 && number > -1.0f && number < 1.0f) {
+        const uint8_t decimal_digit_index = 3 - decimalPoints;
+        digits[decimal_digit_index] = 0;
+    }
 
     for (uint8_t i = 0; i < 4; i++) {
         setDigit(i + 1, digits[i], i == 3 - decimalPoints && decimalPoints > 0);

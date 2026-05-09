@@ -5,6 +5,12 @@
 #include "outputs.hpp"
 
 
+#define FSTOP_NUM_SELECTIONS 6
+#define TIMER_NUM_SELECTIONS 6
+#define DEFAULT_FSTOP_STEP_INDEX 4
+#define DEFAULT_TIMER_STEP_INDEX 2
+
+
 enum class LightSourceType {
     NONE = 0,
     LAMP,
@@ -32,8 +38,26 @@ struct SystemSettings {
     unsigned int magic_number = 0xDEADBEEF; // For validating settings data
 };
 
+struct TimerTemplate {
+    char title[20] = "Untitled Timer";
+    
+    // Light source setpoints
+    int color_setpoints[3] = {0};
+    bool color_enabled[3] = {true, true, true};
+
+    // Test-strip related setpoints
+
+    // Timer related setpoints
+    static const uint8_t f_steps[FSTOP_NUM_SELECTIONS];
+    static const float t_steps[TIMER_NUM_SELECTIONS];
+    uint8_t f_step_index = DEFAULT_FSTOP_STEP_INDEX, t_step_index = DEFAULT_TIMER_STEP_INDEX;
+
+};
+
+
 struct SystemState {
     InputData inputs;
     OutputData outputs;
+    TimerTemplate timer_setpoint;
     SystemSettings settings;
 };

@@ -23,6 +23,7 @@ namespace string_const {
 
     static const char* SettingsMenuItems[] = {
         "\\/ Save Settings",
+        "F-Stop Table",
         "Light Source",
         "7SD Brightness",
         "Buzzer Frequency",
@@ -38,4 +39,12 @@ namespace string_const {
         "About",
         "/\\ Reset Settings !!!"
     };
+
+    static const char* cmyk_labels[3] = {"yellow", "magenta", "cyan"};
+    static const char* rgb_labels[3] = {"blue", "green", "red"};
+    
+    static const char* table_labels[7] = {"0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4"};
+
+
+    static const char* preview_states[3] = {"Off", "Preview", "Focus"};
 };

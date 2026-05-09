@@ -23,9 +23,12 @@ class EPD_Page;
 enum class PageIndex {
     TEST = 0,
     TIMER,
-    FSTOP,
+    TEST_STRIP,
+    DODGE_BURN,
+    LAMP_CONTROL,
     SETTINGS,
     SETTINGS_VALUE,
+    TABLE,
     ABOUT
 };
 
@@ -37,6 +40,7 @@ class EPD_Display : public DisplayType {
         void execute_logic();
         void render();
         void set_page(PageIndex page) { current_page = page; }
+        PageIndex get_current_page() { return current_page; }
 
     private:
         PageIndex current_page = PageIndex::TEST;

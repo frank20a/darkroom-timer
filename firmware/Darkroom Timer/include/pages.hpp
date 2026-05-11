@@ -81,9 +81,25 @@ class TimerPage : public EPD_Page {
         void on_switch_to() override;
         void on_switch_from() override;
 
-        bool selection_flag = false;
+        float timer_value = 8.0f;
+        bool alt_flag = false;
         bool prev_active_flag = false;
-        float timer_value = 10;
+};
+
+class TestStripPage : public EPD_Page {
+    public:
+        TestStripPage(SystemState* system, EPD_Display* display) : EPD_Page(system, display, PageIndex::TEST_STRIP, "Test Strip") {};
+    private:
+        void draw() override;
+        void logic() override;
+        void on_switch_to() override;
+        void on_switch_from() override;
+
+        float base_value = 8.0f, timer_value;
+        bool alt_flag = false;
+        bool prev_active_flag = false;
+        bool cont_buzzer_flag = false;
+        uint8_t test_step = 0;
 };
 
 class LampControlPage : public EPD_Page {
@@ -184,6 +200,6 @@ class TablePage : public EPD_Page {
         void logic() override;
         String get_title() override { return String(title.c_str()) + (diff ? " (Diff)" : " (Value)"); }
 
-        float base_value = 10;
+        float base_value = 8.0f;
         bool diff = false;
 };

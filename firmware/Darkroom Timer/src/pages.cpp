@@ -97,7 +97,7 @@ void EPD_Page::_menu_selector() {
             switch_to_page(PageIndex::TIMER);
             break;
         case 1:
-            switch_to_page(PageIndex::TEST);
+            switch_to_page(PageIndex::TEST_STRIP);
             break;
         case 2:
             switch_to_page(PageIndex::LAMP_CONTROL);
@@ -129,13 +129,13 @@ void TimerPage::draw() {
     const epd_image_t* timer_icons[4] = {&Assets::big_check, &Assets::big_time, &Assets::big_lamp_off, &Assets::big_lamp_on};
     const char* timer_labels[3] = {"f-stop", "normal", "toggle"};
 
+    // Draw labels and icons for timer mode selection
     constexpr int sidebar_width = 40;
     constexpr int selector_slots = 3;
     const int selector_region_w = EPD_Type::HEIGHT - sidebar_width;
     const int slot_w = selector_region_w / selector_slots;
     const int icon_y = EPD_Type::WIDTH - 58;
     const int label_y = icon_y - 22;
-
     for (uint8_t i = 0; i < 3; i++) {
         const bool selected = system->inputs.switch_states[0] == i;
         const int slot_x = sidebar_width + i * slot_w;
@@ -163,6 +163,7 @@ void TimerPage::draw() {
         display->drawBitmap(icon_x, icon_y, icon->data, icon->width, icon->height, selected ? GxEPD_WHITE : GxEPD_BLACK);
     }
 
+    // Draw text for currently selected timer mode
     const int text_x = 55;
     const int text_y = 55;
     display->setTextSize(2);
@@ -192,7 +193,7 @@ void TimerPage::draw() {
         uint16_t step_w, step_h;
         display->getTextBounds(step_buf, step_text_x, text_y, &step_x1, &step_y1, &step_w, &step_h);
 
-        if (selection_flag) {
+        if (alt_flag) {
             constexpr int pad_x = 4;
             constexpr int pad_y = 2;
             constexpr int corner_radius = 4;
@@ -232,7 +233,7 @@ void TimerPage::logic() {
             if (system->inputs.switch_states[0] >= 2)
                 continue;
 
-            if (selection_flag) {
+            if (alt_flag) {
                 partial_h = 60;
                 draw_flag = true;
 
@@ -251,7 +252,7 @@ void TimerPage::logic() {
             partial_h = 60;
             draw_flag = true;
             
-            selection_flag = !selection_flag;
+            alt_flag = !alt_flag;
         } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == EXPOSE_BTN) {
             if (system->outputs.exposure_active_flag)
                 system->outputs.events.push_back({OutputType::STOP_EXPOSURE, {}});
@@ -269,7 +270,7 @@ void TimerPage::logic() {
                 draw_flag = true;
             }
         } else if (event.type == SWITCH_CHANGE && event.long_value == 0) {
-            selection_flag = false;
+            alt_flag = false;
 
             system->outputs.events.push_back({OutputType::STOP_EXPOSURE, {}});
 
@@ -288,7 +289,7 @@ void TimerPage::logic() {
 
     if (ssd_update_needed || (prev_active_flag && !system->outputs.exposure_active_flag)) {
         if (system->inputs.switch_states[0] < 2)
-            system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = timer_value}});\
+            system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = timer_value}});
         else
             system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = 0}});
     }
@@ -308,6 +309,200 @@ void TimerPage::on_switch_to() {
 void TimerPage::on_switch_from() {
     system->outputs.events.push_back({OutputType::SSD_CLEAR, {}});
     system->outputs.exposure_beeper_flag = false; // Set beeper flag based on switch state when switching to page
+}
+
+
+void TestStripPage::draw() {
+    const epd_image_t* timer_icons[3] = {&Assets::big_bars, &Assets::big_playpause, &Assets::big_recycle};
+    const char* timer_labels[3] = {"incr.", "full", "cont."};
+
+    // Draw labels and icons for timer mode selection
+    constexpr int sidebar_width = 40;
+    constexpr int selector_slots = 3;
+    const int selector_region_w = EPD_Type::HEIGHT - sidebar_width;
+    const int slot_w = selector_region_w / selector_slots;
+    const int icon_y = EPD_Type::WIDTH - 58;
+    const int label_y = icon_y - 22;
+    for (uint8_t i = 0; i < 3; i++) {
+        const bool selected = system->inputs.switch_states[0] == i;
+        const int slot_x = sidebar_width + i * slot_w;
+        const epd_image_t* icon = timer_icons[i];
+
+        if (selected) {
+            const int bg_x = slot_x + 8;
+            const int bg_y = label_y - 8;
+            const int bg_w = slot_w - 16;
+            const int bg_h = (icon_y + (int)icon->height + 6) - bg_y;
+            display->fillRoundRect(bg_x, bg_y, bg_w, bg_h, 8, GxEPD_BLACK);
+        }
+
+        display->setTextSize(2);
+        display->setTextColor(selected ? GxEPD_WHITE : GxEPD_BLACK);
+
+        int16_t label_x1, label_y1;
+        uint16_t label_w, label_h;
+        display->getTextBounds(timer_labels[i], 0, 0, &label_x1, &label_y1, &label_w, &label_h);
+        const int label_x = slot_x + (slot_w - (int)label_w) / 2 - label_x1;
+        display->setCursor(label_x, label_y);
+        display->print(timer_labels[i]);
+
+        const int icon_x = slot_x + (slot_w - (int)icon->width) / 2;
+        display->drawBitmap(icon_x, icon_y, icon->data, icon->width, icon->height, selected ? GxEPD_WHITE : GxEPD_BLACK);
+    }
+
+    // Draw text for currently selected timer mode
+    const int text_x = 55;
+    const int text_y = 55;
+    display->setTextSize(2);
+    display->setCursor(text_x, text_y);
+    
+    char buffer[32];
+    const char* suffix = " step";
+    const char* prefix = "time step: ";
+
+    display->setTextColor(GxEPD_BLACK);
+    display->print(prefix);
+
+    int16_t x1, y1;
+    uint16_t w, h;
+
+    display->getTextBounds(prefix, 0, 0, &x1, &y1, &w, &h);
+    const int step_text_x = text_x + (int)w;
+
+    snprintf(buffer, sizeof(buffer), "1/%d", (int)TimerTemplate::f_steps[system->timer_setpoint.f_step_index]);
+    int16_t step_x1, step_y1;
+    uint16_t step_w, step_h;
+    display->getTextBounds(buffer, step_text_x, text_y, &step_x1, &step_y1, &step_w, &step_h);
+
+    if (alt_flag) {
+        constexpr int pad_x = 4;
+        constexpr int pad_y = 2;
+        constexpr int corner_radius = 4;
+        display->fillRoundRect(
+            step_x1 - pad_x,
+            step_y1 - pad_y,
+            step_w + 2 * pad_x,
+            step_h + 2 * pad_y,
+            corner_radius,
+            GxEPD_BLACK
+        );
+        display->setTextColor(GxEPD_WHITE);
+    }
+
+    display->setCursor(step_text_x, text_y);
+    display->print(buffer);
+
+    display->setTextColor(GxEPD_BLACK);
+    display->setCursor(step_text_x + (int)step_w, text_y);
+    display->print(suffix);
+
+    // Draw text for current test-strip step
+    sprintf(buffer, "next test-strip step: %d", test_step + 1);
+    display->setCursor(55, 85);
+    display->print(buffer);
+}
+
+void TestStripPage::logic() {
+    partial_x = 40;
+    partial_y = 25;
+    partial_h = EPD_Type::WIDTH - 25;
+    partial_w = EPD_Type::HEIGHT - 40;
+        
+    bool ssd_update_needed = false;
+
+    for (const auto& event : system->inputs.events) {
+        if (event.type == SWITCH_CHANGE && event.long_value == 0) {
+            partial_y = partial_h = EPD_Type::WIDTH / 2;
+            draw_flag = true;
+            test_step = 0;
+            system->outputs.events.push_back({OutputType::STOP_EXPOSURE, {}});
+
+            timer_value = base_value;
+            ssd_update_needed = true;
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == ENCODER_BTN && test_step == 0) {
+            alt_flag = !alt_flag;
+
+            partial_h = 100;
+            draw_flag = true;
+        } else if (event.type == ENCODER_CHANGE) {
+            if (alt_flag) { 
+                system->timer_setpoint.f_step_index = max(min(system->timer_setpoint.f_step_index + event.long_value, (uint8_t)(FSTOP_NUM_SELECTIONS - 1)), (uint8_t)0);
+                partial_h = 60;
+                draw_flag = true;
+            } else if (test_step == 0) {
+                base_value *= pow(2.0, (double)event.long_value / (double)TimerTemplate::f_steps[system->timer_setpoint.f_step_index]);
+                timer_value = base_value;
+                ssd_update_needed = true;
+            }
+        } else if (event.type == DIGITAL_INPUT_CHANGE && event.long_value == BACK_BTN) {
+            timer_value = base_value;
+            test_step = 0;
+            ssd_update_needed = true;
+            system->outputs.events.push_back({OutputType::STOP_EXPOSURE, {}});
+        } else if (event.type == DIGITAL_INPUT_RISE && event.long_value == EXPOSE_BTN && !alt_flag) {
+            if (!system->outputs.exposure_active_flag) {
+                test_step++;
+                if (system->inputs.switch_states[0] >= 2)
+                    system->outputs.events.push_back({OutputType::START_INFINITE_EXPOSURE, {}});
+                else
+                    system->outputs.events.push_back({OutputType::START_TIMED_EXPOSURE, {.doubleValue = timer_value}});
+            } else {
+                test_step = 0;
+                timer_value = base_value;
+                ssd_update_needed = true;
+                system->outputs.events.push_back({OutputType::STOP_EXPOSURE, {}});
+            }
+        }
+    }
+
+    // Handle test-strip step progression based on exposure state
+    float current_value = base_value * pow(2.0, (double)test_step / (double)TimerTemplate::f_steps[system->timer_setpoint.f_step_index]);
+    float prev_value = base_value * pow(2.0, (double)(test_step - 1) / (double)TimerTemplate::f_steps[system->timer_setpoint.f_step_index]);
+    if (system->inputs.switch_states[0] < 2) {
+        if (prev_active_flag && !system->outputs.exposure_active_flag) {
+            draw_flag = true;
+            switch (system->inputs.switch_states[0]) {
+                case 0:
+                    timer_value = current_value - prev_value;
+                    ssd_update_needed = true;
+                    break;
+                case 1:
+                    timer_value = current_value;
+                    ssd_update_needed = true;
+                    break;
+            }
+        }
+    } else {
+        if (millis() - system->outputs.exposure_start_time == (unsigned long)(prev_value * 1000) && !cont_buzzer_flag && system->outputs.exposure_active_flag) {
+            test_step++;
+            cont_buzzer_flag = true;
+            
+            if (current_value - prev_value >= 2.0) {
+                partial_h = 60;
+                draw_flag = true;
+            }
+
+            system->outputs.events.push_back({OutputType::BUZZER_BEEP, {}});
+        } else {
+            cont_buzzer_flag = false;
+        }
+    }
+
+    // Handle SSD update when needed
+    if (ssd_update_needed)
+        system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = timer_value}});
+
+
+    prev_active_flag = system->outputs.exposure_active_flag;
+}
+
+void TestStripPage::on_switch_to() {
+    timer_value = base_value;
+    system->outputs.events.push_back({OutputType::SSD_SET_NUMBER_FLOAT, {.doubleValue = base_value}});
+}
+
+void TestStripPage::on_switch_from() {
+    system->outputs.events.push_back({OutputType::SSD_CLEAR, {}});
 }
 
 

@@ -46,5 +46,5 @@ namespace string_const {
     static const char* table_labels[7] = {"0", "1/6", "1/4", "1/3", "1/2", "2/3", "3/4"};
 
 
-    static const char* preview_states[3] = {"Off", "Preview", "Focus"};
+    static const char* preview_states[3] = {"off", "preview", "focus"};
 };

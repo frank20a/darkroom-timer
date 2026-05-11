@@ -321,6 +321,11 @@ void Application::write_outputs() {
             system.outputs.exposure_active_flag = false;
         }
     }
+
+    static bool prev_exposure_active_flag = false;
+    if (prev_exposure_active_flag && !system.outputs.exposure_active_flag)
+        system.outputs.events.push_back({OutputType::BUZZER_BEEP, {}});
+    prev_exposure_active_flag = system.outputs.exposure_active_flag;
 }
 
 void Application::handle_output_events() {

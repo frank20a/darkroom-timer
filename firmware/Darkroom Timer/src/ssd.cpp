@@ -64,22 +64,26 @@ void SSD::setNumber(float number, bool full_decimal) {
         if (number > 9999 || number < -999) return; // Number too large for 4 digits
 
         if (number >= 1000 || number <= -100) {
+            number = round(number); // Round to nearest whole number
             intNumber = (int)number;
             decimalPoints = 0;
         } else if (number >= 100 || number <= -10) {
+            number = round(number * 10.0) / 10.0; // Round to nearest tenth
             intNumber = (int)(number * 10);
             decimalPoints = 1;
         } else if (number >= 10 || number <= -1) {
+            number = round(number * 100.0) / 100.0; // Round to nearest hundredth
             intNumber = (int)(number * 100);
             decimalPoints = 2;
         } else {
+            number = round(number * 1000.0) / 1000.0; // Round to nearest thousandth
             intNumber = (int)(number * 1000);
             decimalPoints = 3;
         }
     } else {
         if (number > 999.9 || number < -99.9) return; // Number too large for 4 digits with 1 decimal point
-
-        intNumber = (int)(round(number * 10));
+        number = round(number * 10.0) / 10.0; // Round to nearest whole number
+        intNumber = (int)(number * 10);
         decimalPoints = 1;
     }
     
@@ -89,7 +93,7 @@ void SSD::setNumber(float number, bool full_decimal) {
     // Keep a leading zero for fractional values, e.g. show 0.9 instead of .9
     if (decimalPoints > 0 && number > -1.0f && number < 1.0f) {
         const uint8_t decimal_digit_index = 3 - decimalPoints;
-        digits[decimal_digit_index] = 0;
+        digits[decimal_digit_index] = 0; 
     }
 
     for (uint8_t i = 0; i < 4; i++) {

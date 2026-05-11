@@ -18,4 +18,7 @@ namespace Assets {
     extern const epd_image_t big_lamp_off;
     extern const epd_image_t big_check;
     extern const epd_image_t big_time;
+    extern const epd_image_t big_recycle;
+    extern const epd_image_t big_bars;
+    extern const epd_image_t big_playpause;
 };

@@ -18,6 +18,7 @@ bool EPD_Display::init() {
 
     new TestPage(system, this);
     new TimerPage(system, this);
+    new TestStripPage(system, this);
     new LampControlPage(system, this);
     new SettingsPage(system, this);
     new SettingsValuePage(system, this);
@@ -29,7 +30,7 @@ bool EPD_Display::init() {
             set_page(PageIndex::TIMER);
             break;
         case 1:
-            set_page(PageIndex::TEST);
+            set_page(PageIndex::TEST_STRIP);
             break;
         case 2:
             set_page(PageIndex::LAMP_CONTROL);

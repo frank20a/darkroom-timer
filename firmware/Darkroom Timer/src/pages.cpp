@@ -524,7 +524,7 @@ void LampControlPage::draw() {
                     system->settings.analog_output_range[i][0],
                     system->settings.analog_output_range[i][1],
                     system->inputs.switch_states[0] == i,
-                    system->timer_setpoint.color_enabled[0]
+                    !system->timer_setpoint.color_enabled[i]
                 );
             break;
         case LightSourceType::SINGLE_ANALOG:
@@ -1131,7 +1131,10 @@ void draw_knob(EPD_Display* display, int center_x, int center_y, int value, cons
 
     // Print value
     char value_buf[16];
-    dtostrf(value, 0, 0, value_buf);
+    if (off)
+        sprintf(value_buf, "OFF");
+    else
+        dtostrf(value, 0, 0, value_buf);
 
     display->setTextSize(2);
     int16_t value_x1, value_y1;

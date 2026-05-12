@@ -15,10 +15,14 @@ namespace string_const {
     };
 
     static const char* AOFunctions[] = {
-        "Linear",
-        "Exponential",
-        "Polynomial 2",
-        "Polynomial 3"
+        // "Linear",
+        // "Exponential",
+        // "Polynomial 2",
+        // "Polynomial 3"
+        "y=ax+b",
+        "y=a2^(bx)",
+        "y=ax^2+bx+c",
+        "y=ax^3+bx^2+cx+d"
     };
 
     static const char* SettingsMenuItems[] = {

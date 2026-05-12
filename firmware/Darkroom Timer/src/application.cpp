@@ -281,7 +281,7 @@ void Application::write_outputs() {
         system.outputs.tone_on = false;
     }
 
-    // Output light source
+    // Calculate output setpoints based on mode
     if (system.outputs.preview_state == TESTLIGHT_FOCUS) {
         set_light_output_focus();
     
@@ -321,6 +321,26 @@ void Application::write_outputs() {
             system.outputs.exposure_active_flag = false;
         }
     }
+
+    // Set light outputs based on current settings and setpoints
+    switch (system.settings.light_source){
+        case LightSourceType::NONE:
+            for(uint8_t i = 0; i < 3; i++)
+                analogWrite(light_out_pins[i], 0);
+            digitalWrite(REL_ENLR_PIN, LOW);
+            break;
+        case LightSourceType::LAMP:
+            digitalWrite(REL_ENLR_PIN, _p_ramp[0].update(voltage_setpoints[0]) > 0);
+            break;
+        case LightSourceType::SINGLE_ANALOG:
+        case LightSourceType::TRIPLE_ANALOG:
+            for(uint8_t i = 0; i < 3; i++)
+                analogWrite(light_out_pins[i], volt_to_analog_value(_p_ramp[i].update(voltage_setpoints[i])));
+            digitalWrite(REL_ENLR_PIN, LOW);
+            break;
+    }
+
+    Serial.println("Voltage setpoint: " + String(voltage_setpoints[0]) + " ramp output: " + String(_p_ramp[0].get()));
 
     static bool prev_exposure_active_flag = false;
     if (prev_exposure_active_flag && !system.outputs.exposure_active_flag)
@@ -392,37 +412,33 @@ void Application::handle_output_events() {
 
 // Output helper functions
 void Application::set_light_output_focus() {
-    if (system.settings.light_source == LightSourceType::LAMP) {
-        digitalWrite(REL_ENLR_PIN, HIGH);
-    } else if (system.settings.light_source == LightSourceType::NONE) {
-        set_light_output_off();
+    if (system.settings.light_source == LightSourceType::NONE) {
+        for (uint8_t i = 0; i < 3; i++) voltage_setpoints[i] = 0;
     } else {
-        for(uint8_t i = 0; i < 3; i++)
-            analogWrite(light_out_pins[i], volt_to_analog_value(system.settings.analog_output_voltage_limit));
+        for (uint8_t i = 0; i < 3; i++) voltage_setpoints[i] = system.settings.analog_output_voltage_limit;
     }
-
-    digitalWrite(REL_ENLR_PIN, LOW);
 }
 
 void Application::set_light_output_setpoint() {
     if (system.settings.light_source == LightSourceType::LAMP) {
-        digitalWrite(REL_ENLR_PIN, HIGH);
+        for (uint8_t i = 0; i < 3; i++) voltage_setpoints[i] = system.settings.analog_output_voltage_limit;
     } else if (system.settings.light_source == LightSourceType::NONE) {
-        set_light_output_off();
+        for (uint8_t i = 0; i < 3; i++) voltage_setpoints[i] = 0;
     } else  {
-        for(uint8_t i = 0; i < 3; i++)
-            analogWrite(light_out_pins[i], get_analog_output_value(i));
+        for(uint8_t i = 0; i < 3; i++) voltage_setpoints[i] = get_analog_output_voltage(i);
     }
 }
 
 void Application::set_light_output_off() {
-    for(uint8_t i = 0; i < 3; i++)
-        analogWrite(light_out_pins[i], 0);
-
-    digitalWrite(REL_ENLR_PIN, LOW);
+    for (uint8_t i = 0; i < 3; i++) {
+        voltage_setpoints[i] = 0;
+        _p_ramp[i].set(0);
+    }
 }
 
-int Application::get_analog_output_value(int lamp_index) {
+int Application::get_analog_output_voltage(int lamp_index) {
+    if (!system.timer_setpoint.color_enabled[lamp_index]) return 0;
+
     int i = lamp_index;  // For readability
     double setpoint = system.timer_setpoint.color_setpoints[i];
     double voltage = 0;
@@ -446,8 +462,12 @@ int Application::get_analog_output_value(int lamp_index) {
         voltage = system.settings.analog_output_coeffs[i][1] * pow(system.settings.analog_output_coeffs[i][0], setpoint);
     }
 
+    return voltage;
+
     // Constrain voltage to valid range
-    voltage = max(min(voltage, system.settings.analog_output_voltage_limit), 0);
+    float tmp_voltage = _p_ramp[i].update(voltage);
+    voltage = max(min(tmp_voltage, system.settings.analog_output_voltage_limit), 0);
+    if (i == 0) Serial.println("Voltage setpoint: " + String(voltage) + "V ramp value: " + String(tmp_voltage) + "V");
     
     // Serial.println("Calculated output voltage for setpoint " + String(setpoint) + " and lamp index " + String(lamp_index) + ": " + String(voltage) + "V");
 

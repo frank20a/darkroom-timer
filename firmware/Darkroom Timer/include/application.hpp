@@ -14,6 +14,7 @@
 #include "ssd.hpp"
 #include "epd.hpp"
 #include "encoder.hpp"
+#include "tools.hpp"
 
 
 #define RENDER_INTERVAL_MS      333                 // Minimum interval between screen renders in milliseconds
@@ -22,6 +23,7 @@
 #define DIGITAL_INPUT_MASK      0b1111111000000110  // Valid bits for digital inputs, byte 0
 #define MAX_SWITCH_POSITIONS    3                   // Maximum number of positions for the switches (0, 1, 2)
 #define EVENT_DEBOUNCE_MS       200                 // Number of consecutive reads required to confirm an event
+#define RAMP_FACTOR             8e-3                // Ramp factor for light output changes
 
 
 void print_binary8(uint8_t value);
@@ -50,7 +52,7 @@ class Application {
         void set_light_output_setpoint();
         void set_light_output_off();
         int volt_to_analog_value(double voltage);
-        int get_analog_output_value(int lamp_index = 0);
+        int get_analog_output_voltage(int lamp_index = 0);
         
         // Settings management
         bool load_settings();
@@ -62,4 +64,11 @@ class Application {
         EPD_Display *epd;
         Encoder *encoder;
         SSD *ssd;
+
+        float voltage_setpoints[3] = {0, 0, 0};
+        RampLinear _p_ramp[3] = {
+            RampLinear(RAMP_FACTOR),
+            RampLinear(RAMP_FACTOR),
+            RampLinear(RAMP_FACTOR)
+        };
 };
